@@ -29,12 +29,63 @@ def valid_error_step_duration(ds):
     return ESD_missing_null.index
 
 def set_value_for_index_column(ds, index, column, value):
+    #Set the same value for all the items in ds.loc[(column,index)] inplace
+
     if type(ds) != pd.DataFrame:
         raise TypeError('ds must be pd.DataFrame')
     ds[column].ix[index] = value
     
-def fill_KC_null(ds):
 
+def fill_KC_null(ds, column):
+    #Fill null values in KC column by the string 'null_unit'
+    #taking unit value from ds['Problem Hierarchy']
+
+    ds_na_KC = ds[ds[column].isnull()]
+
+    units = ds_na_KC['Problem Hierarchy']
+    units_str = units.astype(str)
+
+    fill_KC = pd.Series(['null_'+s for s in units_str.values],index=units_str.index)
+
+    ds.loc[(ds_na_KC.index,column)] = fill_KC
+
+    return ds
+
+
+def unit_to_int(ds,test = False):
+    #Replace unit strings to integers in a one-to-one mapping
+
+    units_str = ds['Problem Hierarchy'].unique()
+    units_int = range(len(units_str))
+    mapping_dict = dict(zip(units_str,units_int))
+
+    if test:       
+       return ds.replace({'Problem Hierarchy':mapping_dict}) , test.replace({'Problem Hierarchy':mapping_dict}) 
+
+    return ds.replace({'Problem Hierarchy':mapping_dict})  
+
+
+def split_problem_hierarchy(ds):
+
+    if type(ds) != pd.DataFrame:
+        raise TypeError('ds must be pd.DataFrame')
+
+    hierarchy = ds['Problem Hierarchy']
+    ds.drop('Problem Hierarchy',1,inplace=True)
+
+    hierarchy = hierarchy.apply(lambda x: str.split(x,',') )
+    unit = pd.Series([u[0] for u in hierarchy.values],index=hierarchy.index)
+    section = pd.Series([s[1] for s in hierarchy.values],index=hierarchy.index)
+
+    ds['Unit'] = unit
+    ds['Section'] = section
+
+    return ds
+
+def create_unique_step_id(ds):
+    grouped = train.groupby(['Unit','Section','Problem Name', 'Step Name'])
+    groups = grouped.groups
+    #groups is a dictionary
 
 def main():
     
@@ -44,9 +95,13 @@ def main():
     #Dataset contains a column called Error Step Duration which can be NaN
     #if there is a missing value or if the step was solved correctly (valid NaN). 
     #Set the value of valid NaNs to -1
-    set_value_for_index_column(ds, valid_error_step_duration(ds), 'Error Step Duration (sec)',-1)
+    set_value_for_index_column(train, valid_error_step_duration(train), 'Error Step Duration (sec)',-1)
+    train = split_problem_hierarchy(train)
 
-    
+    train = unit_to_int(train)
+    train = fill_KC_null(train, 'KC(SubSkills)')
+
+
 
 if __name__ == '__main__':
     main()
