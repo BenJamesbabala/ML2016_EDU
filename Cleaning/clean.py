@@ -87,6 +87,10 @@ def create_unique_step_id(ds):
     groups = grouped.groups
     #groups is a dictionary
 
+def renamer(data_frame):
+    data_renamed = data_frame.rename(columns={'Row': 'row', 'Anon Student Id': 'student_id', 'Problem Name': 'problem','Problem View': 'view', 'Step Name': 'step_name', 'Step Start Time': 'start_time', 'First Transaction Time': 'first_trans_time', 'Correct Transaction Time': 'correct_trans_time', 'Step End Time': 'end_time', 'Step Duration (sec)': 'step_duration', 'Correct Step Duration (sec)':'correct_step_duration', 'Error Step Duration (sec)':'error_step_duration','Correct First Attempt':'correct_first_attempt', 'Incorrects':'incorrects', 'Hints':'hints', 'Corrects':'corrects','KC(SubSkills)':'kc_subskills', 'Opportunity(SubSkills)':'opp_subskills', 'KC(KTracedSkills)':'k_traced_skills','Opportunity(KTracedSkills)':'opp_k_traced', 'KC(Rules)': 'kc_rules', 'Opportunity(Rules)': 'opp_rules','Unit':'unit', 'Section':'section'})
+    return data_renamed
+
 def main():
     
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
@@ -100,6 +104,7 @@ def main():
 
     train = unit_to_int(train)
     train = fill_KC_null(train, 'KC(SubSkills)')
+    train = renamer(train)
 
 
 
