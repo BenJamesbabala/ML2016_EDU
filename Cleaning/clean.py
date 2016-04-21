@@ -125,27 +125,28 @@ def renamer(data_frame):
 def sparse_kc_skills(ds, skill_column, opportunity_column):
 
     #Create temporal columns
-    ds['KCop'] = ds[opportunity_column].str.split('~~')
-    ds['KC'] = ds[skill_column].str.split('~~')
-    ds['KCzip'] = map(zip,ds.KC,ds.KCop)
-    ds['KCdict'] = ds.KCzip.map(dict)
+    ds.loc[:,'KCop'] = np.array(ds[opportunity_column].str.split('~~'))
+    ds.loc[:,'KCop'] = map(list_string_to_int, ds['KCop'])
+    ds.loc[:,'KC'] = ds[skill_column].str.split('~~')
+    ds.loc[:,'KCzip'] = map(zip,ds.KC,ds.KCop)
+    ds.loc[:,'KCdict'] = ds.KCzip.map(dict)
 
     #Create sparse matrix
     #sparse_ds = pd.DataFrame(list(ds['KCdict']), index = ds.index)
     list_dicts = list(ds['KCdict'])
     v = DictVectorizer(sparse=True)
-    sparse_ds = v.fit_Transform(list_dicts)
-    
+    sparse_ds = v.fit_transform(list_dicts)
     #Remove temporal columns
     ds.drop('KCop',1)
     ds.drop('KC',1)
     ds.drop('KCzip',1)
     ds.drop('KCdict',1)
 
-    return sparse_ds
+    return sparse_ds, v
 
 
-
+def list_string_to_int(string_list):
+    return map(int, string_list)
 
 def main():
     
@@ -168,11 +169,9 @@ def main():
     train = fill_KC_op_null(train, 'k_traced_skills', 'opp_k_traced')
     train = fill_KC_op_null(train, 'kc_rules', 'opp_rules')
 
-    subskills_sparse = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
-    subskills_sparse = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
-    subskills_sparse = sparse_kc_skills(train, 'kc_rules','opp_rules')
-
-
+    subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
+    k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
+    kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
 
     
 
@@ -184,7 +183,5 @@ if __name__ == '__main__':
 
 
 
-subtrain[subtrain.opp_subskills.isnull()].groupby(['kc_subskills','student_id'])
-
-
-train['cuenta'] = train[train.opp_subskills.isnull()].groupby(['kc_subskills','student_id']).cumcount()+1
+#subtrain[subtrain.opp_subskills.isnull()].groupby(['kc_subskills','student_id'])
+#train['cuenta'] = train[train.opp_subskills.isnull()].groupby(['kc_subskills','student_id']).cumcount()+1
