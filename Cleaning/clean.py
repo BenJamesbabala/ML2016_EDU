@@ -83,7 +83,6 @@ def unit_to_int(ds,test = False):
 
 
 def split_problem_hierarchy(ds):
-
     if type(ds) != pd.DataFrame:
         raise TypeError('ds must be pd.DataFrame')
 
@@ -104,6 +103,17 @@ def create_unique_step_id(ds):
     groups = grouped.groups
     unique_step_id = range(len(groups))
     #groups is a dictionary
+
+def create_unique_problem_id(ds):
+    ds['problem_id']= ds['problem_name'] + ds['step_name'] 
+
+def create_unique_step_id(ds):
+    ds['step_id']= ds['problem_id'] + ds['step_name']
+
+
+
+
+
 
 
 def renamer(data_frame):
@@ -147,7 +157,6 @@ def sparse_kc_skills(ds, skill_column, opportunity_column):
 
 def list_string_to_int(string_list):
     '''Convert a list of strings to a list of integers'''
-
     return map(int, string_list)
 
 def main():
@@ -171,6 +180,9 @@ def main():
     train = fill_KC_op_null(train, 'k_traced_skills', 'opp_k_traced')
     train = fill_KC_op_null(train, 'kc_rules', 'opp_rules')
 
+    create_unique_problem_id(train)
+    create_unique_step_id(train)
+
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
     kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
@@ -187,3 +199,5 @@ if __name__ == '__main__':
 
 #subtrain[subtrain.opp_subskills.isnull()].groupby(['kc_subskills','student_id'])
 #train['cuenta'] = train[train.opp_subskills.isnull()].groupby(['kc_subskills','student_id']).cumcount()+1
+
+
