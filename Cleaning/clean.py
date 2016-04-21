@@ -137,15 +137,17 @@ def sparse_kc_skills(ds, skill_column, opportunity_column):
     v = DictVectorizer(sparse=True)
     sparse_ds = v.fit_transform(list_dicts)
     #Remove temporal columns
-    ds.drop('KCop',1)
-    ds.drop('KC',1)
-    ds.drop('KCzip',1)
-    ds.drop('KCdict',1)
+    ds.drop('KCop',1, inplace = True)
+    ds.drop('KC',1, inplace=True)
+    ds.drop('KCzip',1, inplace=True)
+    ds.drop('KCdict',1, inplace=True)
 
     return sparse_ds, v
 
 
 def list_string_to_int(string_list):
+    '''Convert a list of strings to a list of integers'''
+
     return map(int, string_list)
 
 def main():
