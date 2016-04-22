@@ -159,6 +159,10 @@ def list_string_to_int(string_list):
     '''Convert a list of strings to a list of integers'''
     return map(int, string_list)
 
+def target_to_one_negative_one(ds):
+    mapping_dict = {0:-1}
+    return ds.replace({'correct_first_attempt':mapping_dict})
+
 def main():
     
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
@@ -182,6 +186,14 @@ def main():
 
     create_unique_problem_id(train)
     create_unique_step_id(train)
+
+    train = target_to_one_negative_one(train)
+
+
+
+    #train.to_csv('./Datasets/algebra_2008_2009/21042016_train.txt', sep='\t')
+    #train1 = pd.read_csv('./Datasets/algebra_2008_2009/21042016_train.txt', sep='\t', index_col=0)
+    #train = pd.read_csv('./Datasets/algebra_2008_2009/21042016_train.txt', sep='\t', index_col=0)
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
