@@ -31,6 +31,7 @@ def valid_error_step_duration(ds):
 
     return ESD_missing_null.index
 
+
 def set_value_for_index_column(ds, index, column, value):
     #Set the same value for all the items in ds.loc[(column,index)] inplace
 
@@ -68,8 +69,6 @@ def fill_KC_op_null(ds, skill_column, opportunity_column):
     return ds
     
 
-
-
 def unit_to_int(ds,test = False):
     #Replace unit strings to integers in a one-to-one mapping
 
@@ -81,6 +80,7 @@ def unit_to_int(ds,test = False):
        return ds.replace({'unit':mapping_dict}) , test.replace({'unit':mapping_dict}) 
 
     return ds.replace({'unit':mapping_dict})  
+
 
 def split_problem_hierarchy(ds):
     if type(ds) != pd.DataFrame:
@@ -97,6 +97,7 @@ def split_problem_hierarchy(ds):
     ds['section'] = section
 
     return ds
+
 
 def renamer(data_frame):
     data_renamed = data_frame.rename(columns={'Row': 'row', 'Anon Student Id': 'student_id',
@@ -139,12 +140,11 @@ def list_string_to_int(string_list):
     '''Convert a list of strings to a list of integers'''
     return map(int, string_list)
 
+
 def create_target_to_one_negative_one(ds):
     ds['y_one_negative_one'] = ds.correct_first_attempt
     mapping_dict = {0:-1}
     return ds.replace({'y_one_negative_one':mapping_dict})
-
-
 
 
 def col_to_int(ds,colname):
@@ -158,41 +158,34 @@ def col_to_int(ds,colname):
     return ds.replace({colname:mapping_dict})  
 
 
-
-
 def create_encoding_col(ds, column):
+    #Create a column with the encodings of the
+    # elements another column 
     name = 'ENC_'+column
     ds[name] = map(extract_encoding, ds[column])
 
 
 def extract_encoding(string):
+    #Return the encoding of a string
     detected = chardet.detect(string)
     return detected['encoding']
 
 
-
-
-
-
-
 def change_encoding(ds, column):
-    
-    #enc_column = 'ENC_'+column
-    #create_encoding_col(ds, column)
-
+    #Change the encoding to unicode for the elements
+    #of a given  column
     ds[column] = map(decode_encode, ds[column])
-    #ds.drop(enc_column,1,inplace=True)
+
 
 def decode_encode(string):
-    #return string.decode(encoding).encode('utf-8')
+    #Force encoding to unicode for a received string
     return unicode(string, errors='ignore')
-
-
 
 
 def create_unique_problem_id(ds):
     #ds['problem_id']= str(ds['unit']) + ds['problem_name']
     ds['problem_id'] = map(concat, zip(ds.unit, ds.problem_name))
+
 
 def create_unique_step_id(ds):
     ds['step_id']= map(concat, zip(ds.problem_name, ds.step_name))
@@ -206,10 +199,6 @@ def concat(str_list):
         concatenated = concatenated + str(string)
 
     return concatenated
-
-
-
-
 
 
 
@@ -240,16 +229,12 @@ def main():
     change_encoding(train, 'step_name')
 
 
-
-
     create_unique_problem_id(train)
     create_unique_step_id(train)
 
     train = create_target_to_one_negative_one(train)
 
-
-
-    #train.to_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t')
+    #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
 
@@ -257,7 +242,6 @@ def main():
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
     kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
 
-    
 
 
 
