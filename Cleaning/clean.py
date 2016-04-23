@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np 
 from sklearn.feature_extraction import DictVectorizer
+import chardet
 
 
 
@@ -81,7 +82,6 @@ def unit_to_int(ds,test = False):
 
     return ds.replace({'unit':mapping_dict})  
 
-
 def split_problem_hierarchy(ds):
     if type(ds) != pd.DataFrame:
         raise TypeError('ds must be pd.DataFrame')
@@ -98,24 +98,6 @@ def split_problem_hierarchy(ds):
 
     return ds
 
-def create_unique_step_id(ds):
-    grouped = train.groupby(['unit','section','problem_name', 'step_name'])
-    groups = grouped.groups
-    unique_step_id = range(len(groups))
-    #groups is a dictionary
-
-def create_unique_problem_id(ds):
-    ds['problem_id']= ds['problem_name'] + ds['step_name'] 
-
-def create_unique_step_id(ds):
-    ds['step_id']= ds['problem_id'] + ds['step_name']
-
-
-
-
-
-
-
 def renamer(data_frame):
     data_renamed = data_frame.rename(columns={'Row': 'row', 'Anon Student Id': 'student_id',
                                             'Problem Name': 'problem_name','Problem View': 'view', 'Step Name': 'step_name',
@@ -128,8 +110,6 @@ def renamer(data_frame):
                                             'KC(KTracedSkills)':'k_traced_skills', 'Opportunity(KTracedSkills)':'opp_k_traced', 
                                             'KC(Rules)': 'kc_rules', 'Opportunity(Rules)': 'opp_rules'})
     return data_renamed
-
-
 
 
 def sparse_kc_skills(ds, skill_column, opportunity_column):
@@ -164,6 +144,76 @@ def create_target_to_one_negative_one(ds):
     mapping_dict = {0:-1}
     return ds.replace({'y_one_negative_one':mapping_dict})
 
+
+
+
+def col_to_int(ds,colname):
+    #Replace unit strings to integers in a one-to-one mapping
+
+    col_values = ds[colname].unique()
+    col_values_int = range(len(col_values))
+
+    mapping_dict = dict(zip(col_values,col_values_int))
+
+    return ds.replace({colname:mapping_dict})  
+
+
+
+
+def create_encoding_col(ds, column):
+    name = 'ENC_'+column
+    ds[name] = map(extract_encoding, ds[column])
+
+
+def extract_encoding(string):
+    detected = chardet.detect(string)
+    return detected['encoding']
+
+
+
+
+
+
+
+def change_encoding(ds, column):
+    
+    #enc_column = 'ENC_'+column
+    #create_encoding_col(ds, column)
+
+    ds[column] = map(decode_encode, ds[column])
+    #ds.drop(enc_column,1,inplace=True)
+
+def decode_encode(string):
+    #return string.decode(encoding).encode('utf-8')
+    return unicode(string, errors='ignore')
+
+
+
+
+def create_unique_problem_id(ds):
+    #ds['problem_id']= str(ds['unit']) + ds['problem_name']
+    ds['problem_id'] = map(concat, zip(ds.unit, ds.problem_name))
+
+def create_unique_step_id(ds):
+    ds['step_id']= map(concat, zip(ds.problem_name, ds.step_name))
+    #ds['step_id']= ds['problem_name']+ds['step_name']
+
+
+def concat(str_list):
+    concatenated = ''
+
+    for string in str_list:
+        concatenated = concatenated + str(string)
+
+    return concatenated
+
+
+
+
+
+
+
+
 def main():
     
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
@@ -184,6 +234,13 @@ def main():
     train = fill_KC_op_null(train, 'kc_subskills', 'opp_subskills')
     train = fill_KC_op_null(train, 'k_traced_skills', 'opp_k_traced')
     train = fill_KC_op_null(train, 'kc_rules', 'opp_rules')
+
+
+    change_encoding(train, 'problem_name')
+    change_encoding(train, 'step_name')
+
+
+
 
     create_unique_problem_id(train)
     create_unique_step_id(train)
