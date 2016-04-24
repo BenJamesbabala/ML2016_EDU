@@ -200,6 +200,16 @@ def concat(str_list):
 
     return concatenated
 
+def remove_one_instance_step(ds):
+        
+    student_step = ds[np.array(['correct_first_attempt','step_id', 'student_id'])]
+    student_step = student_step.groupby(['step_id', 'student_id'])
+    groups = student_step.groups
+    student_step = student_step.count()
+    student_step_multiple = student_step[student_step.correct_first_attempt > 1]
+    labels = student_step_multiple.index.labels
+
+
 
 
 
@@ -236,7 +246,7 @@ def main():
 
     #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
-    #train = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
+    #train = pd.read_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t', index_col=0)
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
