@@ -200,14 +200,20 @@ def concat(str_list):
 
     return concatenated
 
-def remove_one_instance_step(ds):
+def get_multiple_instance_steps(ds):
         
-    student_step = ds[np.array(['correct_first_attempt','step_id', 'student_id'])]
-    student_step = student_step.groupby(['step_id', 'student_id'])
-    groups = student_step.groups
-    student_step = student_step.count()
-    student_step_multiple = student_step[student_step.correct_first_attempt > 1]
-    labels = student_step_multiple.index.labels
+    steps = ds[np.array(['correct_first_attempt','step_id', 'student_id'])]
+    steps = steps.groupby(['step_id'])
+    groups = steps.groups
+
+    step_counts = steps.count()
+
+    steps_multiple = step_counts[step_counts.correct_first_attempt > 1]
+
+    ix = steps_multiple.index
+
+    indices = [groups[x] for x in ix.values]
+    return [item for sublist in indices for item in sublist]
 
 
 
@@ -222,6 +228,9 @@ def main():
     #if there is a missing value or if the step was solved correctly (valid NaN). 
     #Set the value of valid NaNs to -1
     train = renamer(train)
+    #Remove steps which were solved only once
+    train = train.ix[get_multiple_instance_steps(train)]
+
     set_value_for_index_column(train, valid_error_step_duration(train), 'error_step_duration',-1)    
     train = split_problem_hierarchy(train)
     train = unit_to_int(train)
@@ -244,6 +253,7 @@ def main():
 
     train = create_target_to_one_negative_one(train)
 
+    
     #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t', index_col=0)
