@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from scipy.sparse import hstack, coo_matrix, vstack
+from scipy.sparse import hstack, coo_matrix, vstack, csr_matrix
 import scipy
 import sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.metrics import mean_squared_error, log_loss, accuracy
+from sklearn.metrics import mean_squared_error, log_loss
 
 
 
@@ -47,35 +47,52 @@ def create_dummy_representation(ds):
 
 def main():
     
+    ds_lr = remove_unused_columns(train)
+    X_step = create_sparse_occurences(ds_lr, 'step_id')
+    X_stud = create_sparse_occurences(ds_lr, 'student_id')
+    
+    X = csr_matrix(hstack((X_stud, X_step)))
+
     train_ix, test_ix = splitter(train)
 
-    train_lr = train.ix[train_ix].copy()
-    test_lr = train.ix[test_ix].copy()
+    X_train = X[train_ix]
+    X_test = X[test_ix]
 
-    #Only keep the necessary features for the baseline model
-    train_lr = remove_unused_columns(train_lr)
-    test_lr = remove_unused_columns(test_lr)
-
-    reset_index(train_lr)
-    reset_index(test_lr)
-
-
-    #Train set
-    #Create sparse X_train matrix
-    X_train_steps = create_sparse_occurences(train_lr, 'step_id')
-    X_train_stud = create_sparse_occurences(train_lr, 'student_id')
-    X_train = hstack((X_train_stud, X_train_steps))
-
+    
+    train_lr = ds_lr.ix[train_ix]
     y_train = train_lr.y_one_negative_one
     y01_train = train_lr.correct_first_attempt
 
-    #Test set
-    X_test_steps = create_sparse_occurences(test_lr, 'step_id')
-    X_test_stud = create_sparse_occurences(test_lr, 'student_id')
-    X_test = hstack((X_test_stud, X_test_steps))    
+    test_lr = ds_lr.ix[test_ix]
+    y_test = test_lr.y_one_negative_one
+    y01_test = test_lr.correct_first_attempt
 
-    y_test = train_lr.y_one_negative_one
-    y01_test = train_lr.correct_first_attempt
+
+    # train_lr = train.ix[train_ix].copy()
+    # test_lr = train.ix[test_ix].copy()
+
+    # #Only keep the necessary features for the baseline model
+    # train_lr = remove_unused_columns(train_lr)
+    # test_lr = remove_unused_columns(test_lr)
+
+    # reset_index(train_lr)
+    # reset_index(test_lr)
+
+
+    # #Train set
+    # #Create sparse X_train matrix
+    # X_train_steps = create_sparse_occurences(train_lr, 'step_id')
+    # X_train_stud = create_sparse_occurences(train_lr, 'student_id')
+    # X_train = hstack((X_train_stud, X_train_steps))
+
+
+
+    # #Test set
+    # X_test_steps = create_sparse_occurences(test_lr, 'step_id')
+    # X_test_stud = create_sparse_occurences(test_lr, 'student_id')
+    # X_test = hstack((X_test_stud, X_test_steps))    
+
+
     
 
     #Grid of N for regularization in cross validation
@@ -83,6 +100,7 @@ def main():
     Cs = np.linspace(1e-4, 1e2, N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=3)
+
     lr.fit(X_train, y_train)
 
     #Evaluation in train set
@@ -90,9 +108,9 @@ def main():
     pred_proba_train_1 = [x[1] for x in pred_proba_train]
     pred_class_train = lr.predict(X_train)
 
-    mse_train = mean_squared_error(y_01_train, pred_proba_train_1)
+    mse_train = mean_squared_error(y01_train, pred_proba_train_1)
     rmse_train = np.sqrt(mse_train)
-    logloss_train = log_loss(y_01_train, pred_proba_train_1)
+    logloss_train = log_loss(y01_train, pred_proba_train_1)
 
 
     #Evaluation in test set
@@ -100,9 +118,9 @@ def main():
     pred_proba_test_1 = [x[1] for x in pred_proba_test]
     pred_class_test = lr.predict(X_test)
 
-    mse_test = mean_squared_error(y_01_test, pred_proba_test_1)
+    mse_test = mean_squared_error(y01_test, pred_proba_test_1)
     rmse_test = np.sqrt(mse_test)
-    logloss_test = log_loss(y_01_test, pred_proba_test_1)
+    logloss_test = log_loss(y01_test, pred_proba_test_1)
 
 
 if __name__ == '__main__':
