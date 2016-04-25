@@ -215,6 +215,8 @@ def get_multiple_instance_steps(ds):
     indices = [groups[x] for x in ix.values]
     return [item for sublist in indices for item in sublist]
 
+def reset_index(ds):
+    ds.index = range(ds.shape[0])
 
 
 
@@ -230,6 +232,7 @@ def main():
     train = renamer(train)
     #Remove steps which were solved only once
     train = train.ix[get_multiple_instance_steps(train)]
+    reset_index(train)
 
     set_value_for_index_column(train, valid_error_step_duration(train), 'error_step_duration',-1)    
     train = split_problem_hierarchy(train)
