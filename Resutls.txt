@@ -4,3 +4,20 @@ Baseline Model
 
 baseline_lr.py
 
+In [183]: lr.C_
+Out[183]: array([ 0.0001])
+
+
+---------------------------
+Train set evaluation
+---------------------------
+In [175]: rmse_train
+Out[175]: 0.35713852520929568
+
+In [176]: logloss_train
+Out[176]: 0.42193057282152835
+
+
+---------------------------
+Test set evaluation
+---------------------------
