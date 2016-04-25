@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import hstack, coo_matrix, vstack
 import scipy
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegressionCV
 
 
 
@@ -42,7 +43,6 @@ def create_dummy_representation(ds):
 
 
 
-
 def main():
 
     #Only keep the necessary features for the baseline model
@@ -52,10 +52,14 @@ def main():
     X_steps = create_sparse_occurences(train_lr, 'step_id')
     X_stud = create_sparse_occurences(train_lr, 'student_id')
     X = hstack((X_stud, X_steps))
-    
+
     y = train_lr.y_one_negative_one
-    
-    lr = LinearRegression()
+
+    #Grid of 10 for regularization in cross validation
+    Cs = np.linspace(1e-4, 1e2, 10)
+    lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
+        scoring='log_loss', n_jobs=3)
+    lr.fit(X,y)
 
 
 
