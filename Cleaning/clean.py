@@ -263,12 +263,11 @@ def main():
 
     #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
-    #train = pd.read_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t', index_col=0)
+    #train = pd.read_csv('./Datasets/algebra_2008_2009/25042016_train.txt', sep='\t', index_col=0)
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
     kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
-
 
 if __name__ == '__main__':
     main()
