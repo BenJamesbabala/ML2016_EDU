@@ -226,17 +226,25 @@ def main():
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
     test = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_test.txt', sep='\t')
 
-    #Dataset contains a column called Error Step Duration which can be NaN
-    #if there is a missing value or if the step was solved correctly (valid NaN). 
-    #Set the value of valid NaNs to -1
+
+    
+    #Rename columns
     train = renamer(train)
+    #Split problem  hierarchy into unit and section
+    train = split_problem_hierarchy(train)
+    #Change unit to an integer
+    train = unit_to_int(train)
+    #Create a unique problem identificator
+    create_unique_problem_id(train)
+    #Create a unique step identificator
+    create_unique_step_id(train)
     #Remove steps which were solved only once
     train = train.ix[get_multiple_instance_steps(train)]
     reset_index(train)
-
+    #Dataset contains a column called Error Step Duration which can be NaN
+    #if there is a missing value or if the step was solved correctly (valid NaN). 
+    #Set the value of valid NaNs to -1
     set_value_for_index_column(train, valid_error_step_duration(train), 'error_step_duration',-1)    
-    train = split_problem_hierarchy(train)
-    train = unit_to_int(train)
 
     train = fill_KC_null(train, 'kc_subskills')
     train = fill_KC_null(train, 'k_traced_skills')
@@ -246,17 +254,13 @@ def main():
     train = fill_KC_op_null(train, 'k_traced_skills', 'opp_k_traced')
     train = fill_KC_op_null(train, 'kc_rules', 'opp_rules')
 
-
+    #Change encodings of problem and step name to unicode
     change_encoding(train, 'problem_name')
     change_encoding(train, 'step_name')
 
-
-    create_unique_problem_id(train)
-    create_unique_step_id(train)
-
+    #Create a target variable column with -1 and 1 instead 0 and 1
     train = create_target_to_one_negative_one(train)
 
-    
     #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t', index_col=0)
@@ -264,8 +268,6 @@ def main():
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
     kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
-
-
 
 
 if __name__ == '__main__':
