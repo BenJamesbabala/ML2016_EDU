@@ -4,8 +4,9 @@ Baseline Model
 
 baseline_lr.py
 
-In [183]: lr.C_
-Out[183]: array([ 0.0001])
+In [24]: lr.C_
+Out[24]: array([ 0.00359381])
+
 
 
 ---------------------------
