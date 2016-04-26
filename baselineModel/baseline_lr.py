@@ -5,7 +5,7 @@ import scipy
 import sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.metrics import mean_squared_error, log_loss
+from sklearn.metrics import mean_squared_error, log_loss, accuracy_score
 
 
 
@@ -96,10 +96,11 @@ def main():
     
 
     #Grid of N for regularization in cross validation
-    N = 15
-    Cs = np.linspace(1e-4, 1e2, N)
+    N = 10
+    Cs = np.logspace(-6, 2, num=N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
-        scoring='log_loss', n_jobs=3)
+        scoring='log_loss', n_jobs=4)
+
 
     lr.fit(X_train, y_train)
 
@@ -111,6 +112,7 @@ def main():
     mse_train = mean_squared_error(y01_train, pred_proba_train_1)
     rmse_train = np.sqrt(mse_train)
     logloss_train = log_loss(y01_train, pred_proba_train_1)
+    accuracy_train = accuracy_score(y_train,pred_class_train)
 
 
     #Evaluation in test set
@@ -121,6 +123,7 @@ def main():
     mse_test = mean_squared_error(y01_test, pred_proba_test_1)
     rmse_test = np.sqrt(mse_test)
     logloss_test = log_loss(y01_test, pred_proba_test_1)
+    accuracy_test= accuracy_score(y_test,pred_class_test)
 
 
 if __name__ == '__main__':
