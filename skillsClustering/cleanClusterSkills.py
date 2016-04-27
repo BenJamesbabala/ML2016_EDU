@@ -39,8 +39,8 @@ def cleanSubskills(SubskillsList):
             skill = skill.split(';')[0][12:]
         newList2.append(skill)
         
-
     return dict(zip(SubskillsList,newList))
+}
 
 
 def cosSimilarity(documents):
@@ -93,9 +93,10 @@ def kMeans(documents , number_clusters):
 
     '''
 
-    vectorizer = TfidfVectorizer(stop_words='english', smooth_idf=True,  ngram_range=(1, 2))
+    vectorizer = TfidfVectorizer(stop_words='english', smooth_idf=True)
     X = vectorizer.fit_transform(documents)
-    model = KMeans(n_clusters = number_clusters , init='k-means++', max_iter=100, n_init=1)
+    model = KMeans(n_clusters = number_clusters , init='k-means++',
+                    max_iter=100, n_init=1)
     model.fit(X)
     #order_centroids = model.cluster_centers_.argsort()[:, ::-1]
     #terms = vectorizer.get_feature_names()
