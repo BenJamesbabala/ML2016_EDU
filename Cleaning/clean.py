@@ -226,8 +226,6 @@ def main():
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
     test = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_test.txt', sep='\t')
 
-
-    
     #Rename columns
     train = renamer(train)
     #Split problem  hierarchy into unit and section
@@ -261,9 +259,9 @@ def main():
     #Create a target variable column with -1 and 1 instead 0 and 1
     train = create_target_to_one_negative_one(train)
 
-    #train.to_csv('./Datasets/algebra_2008_2009/23042016_train.txt', sep='\t')
+    #train.to_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
-    #train = pd.read_csv('./Datasets/algebra_2008_2009/25042016_train.txt', sep='\t', index_col=0)
+    #train = pd.read_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t', index_col=0)
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
