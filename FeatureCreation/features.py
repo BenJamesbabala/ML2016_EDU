@@ -1,4 +1,8 @@
-
+import numpy as np
+import pandas as pd
+from scipy.sparse import hstack, coo_matrix, vstack, csr_matrix, lil_matrix
+import scipy
+import sklearn
 
 def skills_knowledge_counter(df, features, sparse_matrix_input, subskills_col):
 
@@ -25,30 +29,58 @@ def skills_knowledge_counter(df, features, sparse_matrix_input, subskills_col):
 
 
 
-def skills_corr_counter(ds, features, sparse_matrix_input, subskills_col):
+def skills_corr_counter(ds, sparse_matrix_input):
 
     #This was the second version. The part that is still too slow is the filtering and groupby of the ds
     students = ds.student_id.unique()
-    students_group = ds.groupby('student_id')
+    student_cfa = ds[['student_id', 'correct_first_attempt']]
+    students_group = student_cfa.groupby('student_id')
+    groups = students_group.groups
+    sparse_matrix = csr_matrix(sparse_matrix_input.shape)
 
-    sparse_matrix = coo_matrix([])
+    for col in xrange(sparse_matrix_input.shape[1]):
 
-    for col in range(sparse_matrix_input.shape[1]):
+        #new_column = pd.Series(np.zeros(ds.shape[0]))
 
-        new_column = pd.DataFrame(np.zeros(ds.shape[0]))
-
-        skill_indexes = np.array(sparse_matrix_input[:,col].nonzero()[0])
+        skill_indices = np.array(sparse_matrix_input[:,col].nonzero()[0])
 
         for student in students:
-            student_index = np.array(students_group.groups[student])
-            indexes = np.intersect1d(skill_indexes, student_index, assume_unique=True)
-            new_column.loc[indexes] = ds.ix[indexes].groupby('student_id').cumsum().correct_first_attempt.reshape((indexes.shape[0], 1))
+            student_index = np.array(groups[student])
+            indices = np.intersect1d(skill_indices, student_index, assume_unique=True)
+            
+            cumsum = np.array(student_cfa.ix[indices].correct_first_attempt.cumsum())
+            cumsum = cumsum.reshape(len(cumsum),1)
+            sparse_matrix[indices,col] = cumsum
 
-        sparse_col = coo_matrix(new_column)
+
+            #new_column.loc[indexes] = np.array(student_cfa.correct_first_attempt.cumsum())
+            #new_column.loc[indexes] = ds.ix[indexes].groupby('student_id').cumsum().correct_first_attempt.reshape((indexes.shape[0], 1))
+    return sparse_matrix
+
+time.ctime()
+subskills_count = skills_corr_counter(ds, subskills_sparse)
+time.ctime()
 
 
-        if sparse_matrix.size>0:
-            sparse_matrix = hstack([sparse_matrix, sparse_col])
-        else:
-            sparse_matrix = sparse_col
-        print 'done column'
+
+def skills_corr_counter(ds, sparse_matrix_input):
+
+    #New Version: 
+    # Timing:   Wed Apr 27 02:21:00 2016
+    #           Wed Apr 27 02:25:35 2016
+
+    student_cfa = ds[['student_id', 'correct_first_attempt']]
+    sparse_matrix = csr_matrix(sparse_matrix_input.shape)
+
+    for col in xrange(sparse_matrix_input.shape[1]):
+
+        skill_indices = np.array(sparse_matrix_input[:,col].nonzero()[0])
+
+        s_cfa = student_cfa.ix[skill_indices]
+        sg = s_cfa.groupby('student_id').cumsum()
+        indices = np.array(sg.index)
+        values = sg.values
+
+        sparse_matrix[indices,col] = values
+
+    return sparse_matrix
