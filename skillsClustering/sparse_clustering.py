@@ -1,22 +1,19 @@
-skillsDictionary = np.load('/home/michael/Desktop/machineLearningProject/ML2016_EDU/skillsClustering/kc_subskills100.npy').item()
-
+import numpy as np
 from scipy.sparse import csr_matrix
 
-def dictionary_reverser(vectorizer, skillsDictionary):
-	features = vectorizer.feature_names_
-	tuplesOfSkills=[]
 
+
+def dictionary_reverser( skillsDictionary):
+	tuplesOfSkills=[]
 	for key in skillsDictionary.keys():
 	    for value in skillsDictionary[key]:
 	        tuplesOfSkills.append((value,key))
-	        
-	reverseDict = [(b,a) for (a,b) in skillsDictionary.items()]
-	return dict(reverseDict)
+	return dict(tuplesOfSkills)
 
 
 
 def lookUpDictionary(subskills_vectorizer, skillsDictionary):
-	reverseSkillsDictionary=dictionary_reverser(subskills_vectorizer, skillsDictionary)
+	reverseSkillsDictionary = dictionary_reverser(skillsDictionary)
 	indexedTuples=[]
 	for skill in reverseSkillsDictionary.keys():
 	    ind = features.index(skill)
@@ -25,7 +22,7 @@ def lookUpDictionary(subskills_vectorizer, skillsDictionary):
 	a = dict(indexedTuples)
 
 	final = dict()
-	for i in range(100):
+	for i in range(len(skillsDictionary)):
 	    final[i]=[]
 	    
 	for key in a.keys():
