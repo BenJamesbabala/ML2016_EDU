@@ -224,7 +224,7 @@ def reset_index(ds):
 def main():
     
     train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
-    test = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_test.txt', sep='\t')
+    #test = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_test.txt', sep='\t')
 
     #Rename columns
     train = renamer(train)
