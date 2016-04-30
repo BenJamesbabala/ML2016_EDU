@@ -83,61 +83,14 @@ def create_and_save_sparses(ds, sparse_list, window_list):
         print ('Matrix number {} window {} completed'.format(sp_n, window))
 
 
-def previous_correct_first_attempt_column(data_frame):
-    #data_frame: pandas dataframe
-
-    ds_grouped = data_frame.groupby(['student_id', 'step_id'])
-    indices = ds_grouped.indices
-    data_frame['correct_first_attempt_previous'] = -0.5
-
-    for student, step_id in indices:
-
-            indexes_student_step = indices[student, step_id]
-
-
-            data_step_student = data_frame.ix[indices[student, step_id]]
-            correct_first_attempt_delayed = data_step_student['correct_first_attempt'].shift(1)
-            data_frame.loc[(indices[student, step_id], 'correct_first_attempt_previous')] = correct_first_attempt_delayed
-
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous == 0] = -1
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous == -0.5] = 0
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous.isnull()] = 0
-
-#sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
-#windows = [1,2,3,4,5,6,7,8,9,10]
-# create_and_save_sparses(train, sparse_list, windows)
-
-
-
-
 
 def previous_correct_first_attempt_column(data_frame):
     #data_frame: pandas dataframe
-    data_frame = data_frame[['student_id', 'step_id',
-                            'correct_first_attempt']]
 
-    ds_grouped = data_frame.groupby(['student_id', 'step_id'])
-      
-    #cfa_prev = pd.DataFrame(np.ones(data_frame.shape[0])*(-0.5), 
-    #                        index=data_frame.index, columns=['cfa_prev'])
-
-    #data_frame['correct_first_attempt_previous'] = -0.5
-
-    cfa_prev = ds_grouped.apply(previous_cfa)
-    
-    #data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous == 0] = -1
-    #data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous.isnull()] = 0
-
-def previous_cfa(df):
-    cfa_prev = df.correct_first_attempt.shift(1)
-    return cfa_prev
-
-
-
-
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous == 0] = -1
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous == -0.5] = 0
-    data_frame.correct_first_attempt_previous[data_frame.correct_first_attempt_previous.isnull()] = 0
+    small_data_frame = train[['student_id', 'step_id', 'correct_first_attempt']]
+    grouped = small_data_frame.groupby(['student_id', 'step_id'])
+    shifted = grouped.shift(periods=1)
+    data_frame['cfa_previous'] = shifted.correct_first_attempt
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
 #windows = [1,2,3,4,5,6,7,8,9,10]
