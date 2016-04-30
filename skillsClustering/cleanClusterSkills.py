@@ -189,13 +189,6 @@ def main():
     numberOfClusters = 100
     partitions = clusterDictionary(data, skill, numberOfClusters, verbose=True)
     
-    s=0
-    for key in partitions.keys():
-        s+= len(partitions[key])
-
-    
-    print("number of keys")
-    print(s)
 
     np.save(skill+str(numberOfClusters)+'.npy', partitions) 
 
