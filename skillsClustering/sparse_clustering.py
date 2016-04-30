@@ -2,7 +2,6 @@ import numpy as np
 from scipy.sparse import csr_matrix
 
 
-
 def dictionary_reverser( skillsDictionary):
 	tuplesOfSkills=[]
 	for key in skillsDictionary.keys():
