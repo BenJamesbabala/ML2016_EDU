@@ -1,7 +1,6 @@
 import pandas as pd 
 import numpy as np 
 from sklearn.feature_extraction import DictVectorizer
-import chardet
 
 
 
@@ -213,10 +212,13 @@ def get_multiple_instance_steps(ds):
     ix = steps_multiple.index
 
     indices = [groups[x] for x in ix.values]
-    return [item for sublist in indices for item in sublist]
+    indices_flat = [item for sublist in indices for item in sublist]
+    return sorted(indices_flat)
 
 def reset_index(ds):
+
     ds.index = range(ds.shape[0])
+    return ds
 
 def load_ds(path):
     dtypes = {u'row':np.int64, u'student_id':str, 
@@ -254,7 +256,8 @@ def main():
     create_unique_step_id(train)
     #Remove steps which were solved only once
     train = train.ix[get_multiple_instance_steps(train)]
-    reset_index(train)
+
+    train = reset_index(train)
     #Dataset contains a column called Error Step Duration which can be NaN
     #if there is a missing value or if the step was solved correctly (valid NaN). 
     #Set the value of valid NaNs to -1
@@ -279,7 +282,7 @@ def main():
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t', index_col=0)
 
-    train = load_ds('./Datasets/algebra_2008_2009/27042016_train.txt')
+    # train = load_ds('./Datasets/algebra_2008_2009/27042016_train.txt')
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
