@@ -40,7 +40,7 @@ def cleanSubskills(SubskillsList):
         newList2.append(skill)
         
     return dict(zip(SubskillsList,newList))
-}
+
 
 
 def cosSimilarity(documents):
@@ -142,6 +142,7 @@ def remove_words_from_docs(docs, words ,replacewith=' '):
                                     docs[i].split()))
     return w_removed
 
+
 def main():
 
     fileLocation = 'Datasets/algebra_2008_2009/27042016_train.txt' 
@@ -180,6 +181,43 @@ def main():
         print(key)
         for val in partitions[key]:
             print val
+
+
+def skills_cluster(data, skills_col, verbose=False):
+
+    skills = data[skills_col].apply(lambda x: str(x).split('~~'))
+
+    # split lists of skills into individual skills
+    skillsListOrig = list(set(x for l in list(skills.values) for x in l))
+    
+    #Create a copy of the subskills to clean and cluster with
+    skillsList = copy.deepcopy(skillsListOrig)
+    #clean subskills
+    skillsList = cleanSubskills(skillsList).values()
+    #Remove punctuation (verify what happens with math symbols)
+    skillsList = remove_punctuation_from_docs(skillsList)
+    #Lowercase all text
+    skillsList = lowercase_docs(skillsList)
+    #Remove words that do not add any information.
+    skillsList = remove_words_from_docs(skillsList, ['skillrule'])
+    #Tokenize numbers together
+    skillsList = tokenize_numbers_together(skillsList)
+
+    #Similarity not needed for now
+    #subSkillSimilarities = cosSimilarity(skillsList)
+
+    indexOfPartitions = kMeans(skillsList, 40)
+    partitions = getPartitions(skillsList, indexOfPartitions)
+    partitions_orig = getPartitions(skillsListOrig, indexOfPartitions)
+    
+    if verbose:
+        for key in partitions_orig.keys():
+            print(key)
+            for val in partitions_orig[key]:
+                print val
+
+
+
 
 
 if __name__ == '__main__':
