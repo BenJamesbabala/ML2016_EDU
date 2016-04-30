@@ -40,7 +40,6 @@ def cleanSubskills(SubskillsList):
             skill = skill.split(';')[0][12:]
         newList2.append(skill)
         
-#    return dict(zip(SubskillsList,newList))
     return newList2
 
 
@@ -191,6 +190,43 @@ def main():
     
 
     np.save(skill+str(numberOfClusters)+'.npy', partitions) 
+
+
+def skills_cluster(data, skills_col, verbose=False):
+
+    skills = data[skills_col].apply(lambda x: str(x).split('~~'))
+
+    # split lists of skills into individual skills
+    skillsListOrig = list(set(x for l in list(skills.values) for x in l))
+    
+    #Create a copy of the subskills to clean and cluster with
+    skillsList = copy.deepcopy(skillsListOrig)
+    #clean subskills
+    skillsList = cleanSubskills(skillsList).values()
+    #Remove punctuation (verify what happens with math symbols)
+    skillsList = remove_punctuation_from_docs(skillsList)
+    #Lowercase all text
+    skillsList = lowercase_docs(skillsList)
+    #Remove words that do not add any information.
+    skillsList = remove_words_from_docs(skillsList, ['skillrule'])
+    #Tokenize numbers together
+    skillsList = tokenize_numbers_together(skillsList)
+
+    #Similarity not needed for now
+    #subSkillSimilarities = cosSimilarity(skillsList)
+
+    indexOfPartitions = kMeans(skillsList, 40)
+    partitions = getPartitions(skillsList, indexOfPartitions)
+    partitions_orig = getPartitions(skillsListOrig, indexOfPartitions)
+    
+    if verbose:
+        for key in partitions_orig.keys():
+            print(key)
+            for val in partitions_orig[key]:
+                print val
+
+
+
 
 
 if __name__ == '__main__':
