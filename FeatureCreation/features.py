@@ -92,6 +92,17 @@ def previous_correct_first_attempt_column(data_frame):
     shifted = grouped.shift(periods=1)
     data_frame['cfa_previous'] = shifted.correct_first_attempt
 
+
+def create_missing_values_indicators(dataframe, column_name):
+    # This function creates indicator features to know if there was a null value for a particular feature and a particular record
+    column_copy = pd.DataFrame(dataframe[column_name].isnull())
+    new_name = column_name + '_d'
+    column_copy.rename(columns={column_name:new_name}, inplace=True)
+    dummies_column = column_copy.applymap(lambda x: 1 if x else 0)
+    
+    return dummies_column
+
+
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
 #windows = [1,2,3,4,5,6,7,8,9,10]
 # create_and_save_sparses(train, sparse_list, windows)
