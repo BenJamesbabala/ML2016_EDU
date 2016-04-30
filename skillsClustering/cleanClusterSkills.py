@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -16,7 +17,7 @@ from sklearn.metrics import adjusted_rand_score
 
 import re, string 
 import copy
-
+import csv
 
 def cleanSubskills(SubskillsList):
     '''
@@ -26,7 +27,7 @@ def cleanSubskills(SubskillsList):
     '''
     newList=[]
     for skill in SubskillsList:
-        if "{" in skill:
+        if "[Skillrule" in skill:
             splittedField = skill.split("{")[0][12:-2]
             splittedField2 = splittedField.split('[')
             newList.append(splittedField2[0])
@@ -39,8 +40,13 @@ def cleanSubskills(SubskillsList):
             skill = skill.split(';')[0][12:]
         newList2.append(skill)
         
+<<<<<<< HEAD
     return dict(zip(SubskillsList,newList))
 
+=======
+#    return dict(zip(SubskillsList,newList))
+    return newList2
+>>>>>>> d6dddb9851e802683cd881f0b577728b28659893
 
 
 def cosSimilarity(documents):
@@ -104,7 +110,9 @@ def kMeans(documents , number_clusters):
 
 def remove_punctuation_from_docs(docs, replacewith=' '):
     ''' Remove punctuation from a string or a list of strings '''
-    regex = re.compile('[%s]' % re.escape(string.punctuation))
+    punctuation = '!"#$%&\'(),.:;<=>?@[\\]^_`{|}~'
+
+    regex = re.compile('[%s]' % re.escape(punctuation))
 
     docs_mod = copy.deepcopy(docs)
     #If the parameter is only one word
@@ -142,24 +150,24 @@ def remove_words_from_docs(docs, words ,replacewith=' '):
                                     docs[i].split()))
     return w_removed
 
+<<<<<<< HEAD
 
 def main():
+=======
+>>>>>>> d6dddb9851e802683cd881f0b577728b28659893
 
-    fileLocation = 'Datasets/algebra_2008_2009/27042016_train.txt' 
-    data = pd.read_csv(fileLocation, sep ='\t',index_col=0)
+def clusterDictionary(data, skillComponent, number_clusters =100, verbose=False):
 
-
-    Subskills = data['kc_subskills'].apply(lambda x: str(x).split('~~'))
-    tracedSkills = data['k_traced_skills'].apply(lambda x: str(x).split('~~'))
-    rules =data['kc_rules'].apply(lambda x: str(x).split('~~'))
-
+    Subskills = data[skillComponent].apply(lambda x: str(x).split('~~'))
+   
     # split lists of skills into individual skills
     SubskillsList = list(set(x for l in list(Subskills.values) for x in l))
-    tracedSkillsList = list(set(x for l in list(tracedSkills.values) for x in l))
-    rulesList = list(set(x for l in list(rules.values) for x in l))
+   
+   
+    SubskillsListOrig = copy.deepcopy(SubskillsList)
 
     #clean subskills
-    SubskillsList = cleanSubskills(SubskillsList).values()
+    SubskillsList = cleanSubskills(SubskillsList)
     #Remove punctuation (verify what happens with math symbols)
     SubskillsList = remove_punctuation_from_docs(SubskillsList)
     #Lowercase all text
@@ -170,17 +178,36 @@ def main():
     SubskillsList = tokenize_numbers_together(SubskillsList)
 
 
-    subSkillSimilarities = cosSimilarity(SubskillsList)
-    tracedSkillsSimilarities = cosSimilarity(tracedSkillsList)
-    rulesSimilarities = cosSimilarity(rulesList)
+    indexOfPartitions = kMeans(SubskillsList,number_clusters)
+    partitions = getPartitions(SubskillsListOrig, indexOfPartitions)
 
-    indexOfPartitions = kMeans(SubskillsList, 40)
-    partitions = getPartitions(SubskillsList, indexOfPartitions)
+    if verbose:
+        for key in partitions.keys():
+            print(key)
+            for val in partitions[key]:
+                print val
 
+    return partitions
+
+
+def main():
+
+    fileLocation = '/home/michael/Desktop/machineLearningProject/27042016_train.txt' 
+    data = pd.read_csv(fileLocation, sep ='\t',index_col=0)
+
+    skill = 'kc_subskills'
+    numberOfClusters = 100
+    partitions = clusterDictionary(data, skill, numberOfClusters, verbose=True)
+    
+    s=0
     for key in partitions.keys():
-        print(key)
-        for val in partitions[key]:
-            print val
+        s+= len(partitions[key])
+
+    
+    print("number of keys")
+    print(s)
+
+    np.save(skill+str(numberOfClusters)+'.npy', partitions) 
 
 
 def skills_cluster(data, skills_col, verbose=False):
