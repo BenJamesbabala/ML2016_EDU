@@ -1,7 +1,6 @@
 import pandas as pd 
 import numpy as np 
 from sklearn.feature_extraction import DictVectorizer
-import chardet
 
 
 
@@ -94,7 +93,7 @@ def split_problem_hierarchy(ds):
     section = pd.Series([s[1] for s in hierarchy.values],index=hierarchy.index)
 
     ds['unit'] = unit
-    ds['section'] = section
+    ds['section'] = section[1:]
 
     return ds
 
@@ -213,11 +212,30 @@ def get_multiple_instance_steps(ds):
     ix = steps_multiple.index
 
     indices = [groups[x] for x in ix.values]
-    return [item for sublist in indices for item in sublist]
+    indices_flat = [item for sublist in indices for item in sublist]
+    return sorted(indices_flat)
 
 def reset_index(ds):
-    ds.index = range(ds.shape[0])
 
+    ds.index = range(ds.shape[0])
+    return ds
+
+def load_ds(path):
+    dtypes = {u'row':np.int64, u'student_id':str, 
+        u'problem_name':str, u'view':np.int64, 
+        u'step_name':str, u'step_duration':np.float64, 
+        u'correct_step_duration':np.float64, 
+        u'error_step_duration':np.float64,
+        u'correct_first_attempt':np.int64, u'incorrects':np.int64,
+        u'hints':np.int64, u'corrects':np.int64, 
+        u'kc_subskills':str, u'opp_subskills':str,
+        u'k_traced_skills':str, u'opp_k_traced':str,
+        u'kc_rules':str, u'opp_rules':str, u'unit':np.int64,
+        u'section':str, u'problem_id':str,
+        u'step_id':str, u'y_one_negative_one':np.int64}
+
+    return pd.read_csv(path, sep='\t', index_col=0,
+                        dtype=dtypes)
 
 
 
@@ -238,7 +256,8 @@ def main():
     create_unique_step_id(train)
     #Remove steps which were solved only once
     train = train.ix[get_multiple_instance_steps(train)]
-    reset_index(train)
+
+    train = reset_index(train)
     #Dataset contains a column called Error Step Duration which can be NaN
     #if there is a missing value or if the step was solved correctly (valid NaN). 
     #Set the value of valid NaNs to -1
@@ -262,6 +281,8 @@ def main():
     #train.to_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t', index_col=0)
+
+    # train = load_ds('./Datasets/algebra_2008_2009/27042016_train.txt')
 
     subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
     k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
