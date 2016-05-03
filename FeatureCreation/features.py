@@ -112,8 +112,8 @@ def skills_corr_counter_win(ds,  window=None):
     new_df = pd.DataFrame(np.zeros((ds.shape[0], 2)), columns=['cum_corr', 'cum_incorr'])
 
     if window:
-        cumulative_corrects = grouped.apply(cumsum_window_corr_incorr, window, 'corrects')
-        cumulative_incorrects = grouped.apply(cumsum_window_corr_incorr, window, 'incorrects')
+        cumulative_corrects = grouped.apply(cumsum_window_corr_incorr, 'corrects', window)
+        cumulative_incorrects = grouped.apply(cumsum_window_corr_incorr, 'incorrects',  window)
 
         cumulative_corrects = cumulative_corrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
         cumulative_incorrects = cumulative_incorrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
@@ -130,7 +130,7 @@ def skills_corr_counter_win(ds,  window=None):
 
 
 
-def cumsum_window_corr_incorr(obs, N=5, col):
+def cumsum_window_corr_incorr(obs, col, N=5):
     cum = obs.cumsum()[col]
     cum_delay = cum.shift(N).fillna(0)
     diff = cum - cum_delay
