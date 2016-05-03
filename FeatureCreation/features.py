@@ -119,29 +119,78 @@ def skills_corr_counter_win(ds,  window=None):
     student_cfa = ds[['student_id', 'step_id', 'corrects', 'incorrects']]
     grouped = student_cfa.groupby(['student_id', 'step_id'])
 
-    new_df = pd.DataFrame(np.zeros((ds.shape[0], 2)), columns=['cum_corr', 'cum_incorr'])
+    new_df = pd.DataFrame(np.zeros((ds.shape[0], 2)), 
+                            columns=['cum_corr', 'cum_incorr'])
 
     if window:
-        cumulative_corrects = grouped.apply(cumsum_window_corr_incorr, 'corrects', window)
-        cumulative_incorrects = grouped.apply(cumsum_window_corr_incorr, 'incorrects',  window)
-
-        cumulative_corrects = cumulative_corrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
-        cumulative_incorrects = cumulative_incorrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
         
-    else:
-        cumulative_corrects = grouped.shift(periods=1).corrects
-        cumulative_incorrects = grouped.shift(periods=1).incorrects
+        cum = grouped.cumsum()
 
-    new_df.loc[cumulative_corrects.index, 'cum_corr'] = cumulative_corrects.values
-    new_df.loc[cumulative_incorrects.index, 'cum_incorr'] = cumulative_incorrects.values
-    new_df['cum_ratio'] = new_df.cum_incorr/(new_df.cum_corr + new_df.cum_incorr)
+        cum_df = pd.merge(student_cfa[['student_id', 'step_id']], cum, 
+                            right_index=True, left_index=True)
 
-    return new_df
+        grouped_cum = cum_df.groupby(['student_id', 'step_id'])
 
+        cum_delay = grouped_cum.shift(window).fillna(0)
+        
+
+        cum_delay_df = pd.merge(student_cfa[['student_id', 'step_id']], cum_delay, 
+                            right_index=True, left_index=True)
+
+        diff = cum - cum_delay
+        diff_df = pd.merge(student_cfa[['student_id', 'step_id']], diff, 
+                            right_index=True, left_index=True)
+        diff_df = diff_df.groupby(['student_id', 'step_id'])
+        diff_df.shift(1).fillna(0)
+
+
+
+        diff_df = pd.merge(student_cfa[['student_id', 'step_id']], diff, 
+                            right_index=True, left_index=True)
+
+        ds1 = pd.merge(student_cfa, cum, left_index=True, right_index=True)
+
+
+
+        cum_delay = cum.shift(window)
+        diff = cum - cum_delay
+        diff1 = diff.shift(1)
+
+
+        grouped - 
+
+        shifted2 = cum.shifted(1)
+
+
+
+
+
+
+
+
+#        cumulative_corrects = grouped.apply(cumsum_window_corr_incorr, 
+#                                                'corrects', window)
+#        cumulative_incorrects = grouped.apply(cumsum_window_corr_incorr,
+#                                                'incorrects',  window)
+#
+#        cumulative_corrects = cumulative_corrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
+#        cumulative_incorrects = cumulative_incorrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
+#        
+#    else:
+#        shifted = grouped.shift(periods=1)
+#        cumulative_corrects = shifted.corrects
+#        cumulative_incorrects = shifted.incorrects
+#        del shifted
+#
+#    new_df.loc[cumulative_corrects.index, 'cum_corr'] = cumulative_corrects.values
+#    new_df.loc[cumulative_incorrects.index, 'cum_incorr'] = cumulative_incorrects.values
+#    new_df['cum_ratio'] = new_df.cum_incorr/(new_df.cum_corr + new_df.cum_incorr)
+#
+#    return new_df
 
 
 def cumsum_window_corr_incorr(obs, col, N=5):
-    cum = obs.cumsum()[col]
+    cum = obs[col].cumsum()
     cum_delay = cum.shift(N).fillna(0)
     diff = cum - cum_delay
     diff = diff.shift(1).fillna(0)
