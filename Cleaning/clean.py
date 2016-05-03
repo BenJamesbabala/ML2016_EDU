@@ -187,7 +187,7 @@ def create_unique_problem_id(ds):
 
 
 def create_unique_step_id(ds):
-    ds['step_id']= map(concat, zip(ds.problem_name, ds.step_name))
+    ds['step_id']= map(concat, zip(ds.problem_id, ds.step_name))
     #ds['step_id']= ds['problem_name']+ds['step_name']
 
 
