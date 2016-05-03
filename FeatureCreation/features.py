@@ -89,7 +89,7 @@ def previous_correct_first_attempt_column(data_frame):
     small_data_frame = train[['student_id', 'step_id', 'correct_first_attempt']]
     grouped = small_data_frame.groupby(['student_id', 'step_id'])
     shifted = grouped.shift(periods=1)
-    data_frame['cfa_previous'] = shifted.correct_first_attempt
+    return shifted.correct_first_attempt
 
 
 
@@ -102,6 +102,41 @@ def create_missing_values_indicators(dataframe, column_name):
     
     return dummies_column
 
+
+
+def skills_corr_counter_win(ds,  window=None):
+    #If window not specified not use window
+    student_cfa = ds[['student_id', 'step_id', 'corrects', 'incorrects']]
+    grouped = student_cfa.groupby(['student_id', 'step_id'])
+
+    new_df = pd.DataFrame(np.zeros((ds.shape[0], 2)), columns=['cum_corr', 'cum_incorr'])
+
+    if window:
+        cumulative_corrects = grouped.apply(cumsum_window_corr_incorr, window, 'corrects')
+        cumulative_incorrects = grouped.apply(cumsum_window_corr_incorr, window, 'incorrects')
+
+        cumulative_corrects = cumulative_corrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
+        cumulative_incorrects = cumulative_incorrects.reset_index(level=1).reset_index(level=0).drop('student_id', axis=1).drop('step_id', axis=1)
+        
+    else:
+        cumulative_corrects = grouped.shift(periods=1).corrects
+        cumulative_incorrects = grouped.shift(periods=1).incorrects
+
+    new_df.loc[cumulative_corrects.index, 'cum_corr'] = cumulative_corrects.values
+    new_df.loc[cumulative_incorrects.index, 'cum_incorr'] = cumulative_incorrects.values
+    new_df['cum_ratio'] = new_df.cum_incorr/(new_df.cum_corr + new_df.cum_incorr)
+
+    return new_df
+
+
+
+def cumsum_window_corr_incorr(obs, N=5, col):
+    cum = obs.cumsum()[col]
+    cum_delay = cum.shift(N).fillna(0)
+    diff = cum - cum_delay
+    diff = diff.shift(1).fillna(0)
+
+    return diff
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
 #windows = [1,2,3,4,5,6,7,8,9,10]
