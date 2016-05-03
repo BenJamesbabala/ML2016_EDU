@@ -151,9 +151,13 @@ def dictionary_reverser( skillsDictionary):
 
 
 
-def lookUpDictionary(subskills_vectorizer, skillsDictionary):
+def lookUpDictionary(skills_vectorizer, skillsDictionary):
+    ''' Receives the skills_vectorizer and the skillsDictionary
+     (from ClusterDictionary)'''
     reverseSkillsDictionary = dictionary_reverser(skillsDictionary)
     indexedTuples=[]
+    features = skills_vectorizer.feature_names_
+
     for skill in reverseSkillsDictionary.keys():
         ind = features.index(skill)
         indexedTuples.append((ind,reverseSkillsDictionary[skill]))
@@ -179,7 +183,9 @@ def sparse_matrix_clusterer(sparse_matrix, clusters_dict):
     return dummyMatrix
 
 def clusterDictionary(data, skillComponent, number_clusters =100, verbose=False):
-
+    ''' Returns a cluster of the type 
+    ClusterNumber:Skills
+    Where skills is a list of all the skills in the cluster '''
     Subskills = data[skillComponent].apply(lambda x: str(x).split('~~'))
    
     # split lists of skills into individual skills
@@ -238,3 +244,6 @@ if __name__ == '__main__':
     main()
 
 
+
+
+ 68: [153, 154, 155],
