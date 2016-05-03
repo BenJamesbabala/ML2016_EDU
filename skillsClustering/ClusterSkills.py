@@ -152,6 +152,12 @@ def dictionary_reverser( skillsDictionary):
 
 
 def lookUpDictionary(subskills_vectorizer, skillsDictionary):
+    ''' Receives a vectorizer and a dictionary from 
+    clusterDictionary and returns a dictionary of the type
+    ClusterNumber:skill_number
+    where skill number refers to the column of a sparse matrix
+    where vectorizer came from. '''
+
     reverseSkillsDictionary = dictionary_reverser(skillsDictionary)
     indexedTuples=[]
     for skill in reverseSkillsDictionary.keys():
@@ -169,17 +175,26 @@ def lookUpDictionary(subskills_vectorizer, skillsDictionary):
 
     return final
 
-def sparse_matrix_clusterer(sparse_matrix, clusters_dict):
+def sparse_matrix_clusterer(sparse_matrix, vectorizer, clusters_dict):
+    ''' Receives a sparse matrix, its vectorizer and the clusters
+    dictionary from clusterDictionary function and returns 
+    '''
+    clusters_dict_vectorizer = lookUpDictionary(vectorizer,
+                                                clusters_dict)
+
+    dummyMatrix = csr_matrix((sparse_matrix.shape[0],
+                                len(clusters_dict_vectorizer)))
     
-    dummyMatrix=csr_matrix((sparse_matrix.shape[0],len(clusters_dict)))
-    for key in clusters_dict.keys():
-        skills_list = clusters_dict[key]
+    for key in clusters_dict_vectorizer.keys():
+        skills_list = clusters_dict_vectorizer[key]
         dummyMatrix[:,int(key)] = sparse_matrix[:,skills_list].sum(axis=1)
         
     return dummyMatrix
 
 def clusterDictionary(data, skillComponent, number_clusters =100, verbose=False):
-
+    ''' Returns a cluster of the type 
+    ClusterNumber:Skills
+    Where skills is a list of all the skills in the cluster (text format) '''
     Subskills = data[skillComponent].apply(lambda x: str(x).split('~~'))
    
     # split lists of skills into individual skills
