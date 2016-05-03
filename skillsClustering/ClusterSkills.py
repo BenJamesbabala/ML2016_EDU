@@ -19,6 +19,9 @@ import re, string
 import copy
 import csv
 
+from scipy.sparse import csr_matrix
+
+
 def cleanSubskills(SubskillsList):
     '''
     input: list of skills in array with no duplicates
@@ -55,9 +58,6 @@ def cosSimilarity(documents):
     return cosine_similarity(tfidf_matrix, tfidf_matrix)
 
 
-
-
-
 def affinityCluster(similarityMatrix , param = -10):
     '''
     input: nxn matrix where the i,j the entrity gives the similarity between 
@@ -74,8 +74,7 @@ def getPartitions(listOfSkills, listOfPartitions):
     output: dictionary where key (0,1,...,) is cluster that items fall into according to cluster
     algorithm
 
-    '''
-    
+    '''    
     groupingDictionary = dict()
     for i in range( listOfPartitions.max() +1 ):
         groupingDictionary[i]=[]  # set key to be integers 0,1,..., numPartitions
@@ -92,7 +91,6 @@ def kMeans(documents , number_clusters):
     output is a list with the same length as documents, where each entry is a number 0,1,...,number_clusters
 
     '''
-
     vectorizer = TfidfVectorizer(stop_words='english', smooth_idf=True)
     X = vectorizer.fit_transform(documents)
     model = KMeans(n_clusters = number_clusters , init='k-means++',
@@ -144,6 +142,41 @@ def remove_words_from_docs(docs, words ,replacewith=' '):
                                     docs[i].split()))
     return w_removed
 
+def dictionary_reverser( skillsDictionary):
+    tuplesOfSkills=[]
+    for key in skillsDictionary.keys():
+        for value in skillsDictionary[key]:
+            tuplesOfSkills.append((value,key))
+    return dict(tuplesOfSkills)
+
+
+
+def lookUpDictionary(subskills_vectorizer, skillsDictionary):
+    reverseSkillsDictionary = dictionary_reverser(skillsDictionary)
+    indexedTuples=[]
+    for skill in reverseSkillsDictionary.keys():
+        ind = features.index(skill)
+        indexedTuples.append((ind,reverseSkillsDictionary[skill]))
+
+    a = dict(indexedTuples)
+
+    final = dict()
+    for i in range(len(skillsDictionary)):
+        final[i]=[]
+        
+    for key in a.keys():
+        final[a[key]].append(key)
+
+    return final
+
+def sparse_matrix_clusterer(sparse_matrix, clusters_dict):
+    
+    dummyMatrix=csr_matrix((sparse_matrix.shape[0],len(clusters_dict)))
+    for key in clusters_dict.keys():
+        skills_list = clusters_dict[key]
+        dummyMatrix[:,int(key)] = sparse_matrix[:,skills_list].sum(axis=1)
+        
+    return dummyMatrix
 
 def clusterDictionary(data, skillComponent, number_clusters =100, verbose=False):
 
@@ -197,41 +230,6 @@ def main():
     print(s)
 
     np.save(skill+str(numberOfClusters)+'.npy', partitions) 
-
-
-def skills_cluster(data, skills_col, verbose=False):
-
-    skills = data[skills_col].apply(lambda x: str(x).split('~~'))
-
-    # split lists of skills into individual skills
-    skillsListOrig = list(set(x for l in list(skills.values) for x in l))
-    
-    #Create a copy of the subskills to clean and cluster with
-    skillsList = copy.deepcopy(skillsListOrig)
-    #clean subskills
-    skillsList = cleanSubskills(skillsList).values()
-    #Remove punctuation (verify what happens with math symbols)
-    skillsList = remove_punctuation_from_docs(skillsList)
-    #Lowercase all text
-    skillsList = lowercase_docs(skillsList)
-    #Remove words that do not add any information.
-    skillsList = remove_words_from_docs(skillsList, ['skillrule'])
-    #Tokenize numbers together
-    skillsList = tokenize_numbers_together(skillsList)
-
-    #Similarity not needed for now
-    #subSkillSimilarities = cosSimilarity(skillsList)
-
-    indexOfPartitions = kMeans(skillsList, 40)
-    partitions = getPartitions(skillsList, indexOfPartitions)
-    partitions_orig = getPartitions(skillsListOrig, indexOfPartitions)
-    
-    if verbose:
-        for key in partitions_orig.keys():
-            print(key)
-            for val in partitions_orig[key]:
-                print val
-
 
 
 
