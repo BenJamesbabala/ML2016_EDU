@@ -82,9 +82,6 @@ def create_and_save_sparses(ds, sparse_list, window_list):
                     sparse_cum) 
         print ('Matrix number {} window {} completed'.format(sp_n, window))
 
-<<<<<<< HEAD
-=======
-
 
 def previous_correct_first_attempt_column(data_frame):
     #data_frame: pandas dataframe
@@ -93,6 +90,7 @@ def previous_correct_first_attempt_column(data_frame):
     grouped = small_data_frame.groupby(['student_id', 'step_id'])
     shifted = grouped.shift(periods=1)
     data_frame['cfa_previous'] = shifted.correct_first_attempt
+
 
 
 def create_missing_values_indicators(dataframe, column_name):
@@ -108,4 +106,20 @@ def create_missing_values_indicators(dataframe, column_name):
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
 #windows = [1,2,3,4,5,6,7,8,9,10]
 # create_and_save_sparses(train, sparse_list, windows)
->>>>>>> 3d92a1588690216064db64ddef38697c85db6af8
+
+
+def main():
+
+    #1st define which skills column to be used
+    subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
+    k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
+    kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
+
+    
+
+
+
+if __name__ == '__main__':
+    main()
+
+
