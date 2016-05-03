@@ -27,8 +27,6 @@ def skills_knowledge_counter(df, features, sparse_matrix_input, subskills_col):
 
     return sparse_matrix
 
-
-
 def skills_corr_counter_win(ds, sparse_matrix_input, window=None):
     #If window not specified not use window
     student_cfa = ds[['student_id', 'correct_first_attempt']]
@@ -47,6 +45,8 @@ def skills_corr_counter_win(ds, sparse_matrix_input, window=None):
         else:
             sg = grouped.cumsum()
         
+        sg = sg.sort_index()
+
         indices = np.array(sg.index)
         values = sg.values
 
@@ -55,6 +55,8 @@ def skills_corr_counter_win(ds, sparse_matrix_input, window=None):
     return sparse_matrix
 
 def cumsum_window(obs, N=5):
+    ''' Receives a DF with observations and returns a DF
+    of the same size but with a windowed cumsum '''
     cum = obs.cumsum().correct_first_attempt
     cum_delay = cum.shift(N).fillna(0)
 
@@ -110,12 +112,42 @@ def create_missing_values_indicators(dataframe, column_name):
 
 def main():
 
-    #1st define which skills column to be used
-    subskills_sparse, subskills_vectorizer = sparse_kc_skills(train, 'kc_subskills','opp_subskills')
-    k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train, 'k_traced_skills','opp_k_traced')
-    kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train, 'kc_rules','opp_rules')
-
+    #1st define which skills column to be used. 
+    #Uncomment the one to be used
     
+    #skills_mapping = 'kc_subskills'
+    #skills_mapping = 'k_traced_skills'
+    skills_mapping = 'kc_rules'
+
+    #Define window to use
+    window = 5
+    #Define if clustering of skills is used:
+    clustering = True
+
+
+
+    #Creation of the sparse subskills matrix
+    if skills_mapping == 'kc_subskills':
+        subskills_sparse, subskills_vectorizer = sparse_kc_skills(train,
+                                                                'kc_subskills',
+                                                                'opp_subskills')
+        sparse_sk_win = skills_corr_counter_win(train, subskills_sparse,
+                                                window= window)
+    elif skills_mapping == 'k_traced_skills':
+        k_traced_sparse, k_traced_vectorizer = sparse_kc_skills(train,
+                                                                'k_traced_skills',
+                                                                'opp_k_traced')
+        sparse_sk_win = skills_corr_counter_win(train, k_traced_sparse,
+                                                window= window)
+    else:
+        kc_rules_sparse, kc_rules_vectorizer = sparse_kc_skills(train,
+                                                                'kc_rules',
+                                                                'opp_rules')
+        sparse_sk_win = skills_corr_counter_win(train, kc_rules_sparse,
+                                                window= window)
+
+
+
 
 
 
