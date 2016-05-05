@@ -136,8 +136,12 @@ def skills_corr_counter_win(ds,  window=None):
         diff_df = pd.merge(student_cfa[['student_id', 'step_id']], diff, 
                             right_index=True, left_index=True)
         diff_df = diff_df.groupby(['student_id', 'step_id'])
+        
+        previous_columns = diff_df.shift(1).fillna(0)
+        previous_columns.columns = ['prev_corr',  'prev_incorr']
 
-        return diff_df.shift(1).fillna(0)
+
+        return previous_columns
 
 
 
@@ -148,6 +152,21 @@ def cumsum_window_corr_incorr(obs, col, N=5):
     diff = diff.shift(1).fillna(0)
 
     return diff
+
+def hints_column(ds, train_indexes, add_column=True):
+
+    train_df = ds.loc[train_indexes]
+    hints_matrix = train_df.groupby('student_id').hints.mean().reset_index()
+    hints_matrix.columns = ['student_id', 'hints_avg']
+    
+    if add_column:
+        merged = ds.merge(hints_matrix, how='left', left_on='student_id', right_on='student_id')
+        return merged
+    else:
+        return hints_matrix
+    
+     
+
 
 
 
