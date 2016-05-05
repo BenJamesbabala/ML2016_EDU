@@ -136,7 +136,8 @@ def skills_corr_counter_win(ds,  window=None):
         diff_df = pd.merge(student_cfa[['student_id', 'step_id']], diff, 
                             right_index=True, left_index=True)
         diff_df = diff_df.groupby(['student_id', 'step_id'])
-        diff_df.shift(1).fillna(0)
+
+        return diff_df.shift(1).fillna(0)
 
 
 
@@ -148,16 +149,6 @@ def cumsum_window_corr_incorr(obs, col, N=5):
 
     return diff
 
-
-
-def create_missing_values_indicators(dataframe, column_name):
-    # This function creates indicator features to know if there was a null value for a particular feature and a particular record
-    column_copy = pd.DataFrame(dataframe[column_name].isnull())
-    new_name = column_name + '_d'
-    column_copy.rename(columns={column_name:new_name}, inplace=True)
-    dummies_column = column_copy.applymap(lambda x: 1 if x else 0)
-    
-    return dummies_column
 
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
