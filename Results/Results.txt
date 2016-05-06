@@ -7,8 +7,6 @@ baseline_lr.py
 In [24]: lr.C_
 Out[24]: array([ 0.00359381])
 
-
-
 ---------------------------
 Train set evaluation
 ---------------------------
@@ -25,7 +23,6 @@ Out[20]: 0.3922118066463941
 In [289]: y01_train.sum()*1.0/len(y01_train)
 Out[289]: 0.8490015460009751
 
-
 ---------------------------
 Test set evaluation
 ---------------------------
@@ -41,3 +38,176 @@ Out[23]: 0.84951167805591166
 In [290]: y01_test.sum()*1.0/len(y01_test)
 Out[290]: 0.84931584831848295
 
+
+++++++++++++++++++++++
+Logistic Regression
+++++++++++++++++++++++
+------
+	1
+------
+SETUP:
+    skills_mapping = 	'kc_subskills'
+    window = 5
+    clustering = 		True
+    n_clusters = 		50
+    Sparse matrices:	skills_sparse_cl
+
+---------------------------
+Test set evaluation
+---------------------------
+In [185]: rmse_train
+Out[185]: 0.35102143859966994
+
+In [186]: logloss_train
+Out[186]: 0.40446782443910995
+
+In [187]: accuracy_train
+Out[187]: 0.84921293761835104
+
+-------------------------
+Test set evaluation
+---------------------------
+In [189]: rmse_test
+Out[189]: 0.35066817504319109
+
+In [190]: logloss_test
+Out[190]: 0.40848704177790635
+
+In [191]: accuracy_test
+Out[191]: 0.85284908152239169
+
+
+------
+	2
+------
+SETUP:
+    skills_mapping = 	'kc_subskills'
+    window = 5
+    clustering = 		True
+    n_clusters = 		50
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			7 min
+
+---------------------------
+Test set evaluation
+---------------------------
+In [201]: rmse_train
+Out[201]: 0.35077351377325494
+
+In [202]: logloss_train
+Out[202]: 0.40378800827108607
+
+In [203]: accuracy_train
+Out[203]: 0.8492324703221682
+
+
+---------------------------
+Test set evaluation
+---------------------------
+In [209]: rmse_test
+Out[209]: 0.35042979165311339
+
+In [210]: logloss_test
+Out[210]: 0.40782340770189118
+
+In [211]: accuracy_test
+Out[211]: 0.85286348901428743
+
+------
+	3
+------
+SETUP:
+    skills_mapping = 	'kc_subskills'
+    window = 10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			7 min
+
+In [22]: lr.C_
+Out[22]: array([ 0.001])
+
+---------------------------
+Test set evaluation
+---------------------------
+In [25]: rmse_train
+Out[25]: 0.34786788381974976
+
+In [26]: logloss_train
+Out[26]: 0.39893390158250053
+
+In [28]: accuracy_train
+Out[28]: 0.84982571021175035
+
+---------------------------
+Test set evaluation
+---------------------------
+In [29]: rmse_test
+Out[29]: 0.34860165507870761
+
+In [30]: logloss_test
+Out[30]: 0.40406381857200657
+
+In [31]: accuracy_test
+Out[31]: 0.85306519390082847
+
+
+------
+	4
+------
+SETUP:
+    skills_mapping = 	'k_traced_skills'
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			10 min
+
+In [31]: lr.C_
+Out[31]: array([  1.77827941e-06])
+
+---------------------------
+Test set evaluation
+---------------------------
+In [34]: rmse_train
+Out[34]: 0.34873999645804188
+
+In [35]: logloss_train
+Out[35]: 0.40157502774744197
+
+In [36]: accuracy_train
+Out[36]: 0.84949114667001713
+
+---------------------------
+Test set evaluation
+---------------------------
+In [37]: rmse_test
+Out[37]: 0.34841780516140447
+
+In [38]: logloss_test
+Out[38]: 0.40302915881801654
+
+In [40]: accuracy_test
+Out[40]: 0.85286108776563818
+
+
+------
+	5
+------
+SETUP:
+    skills_mapping = 	'kc_rules'
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			10 min
+
+In [31]: lr.C_
+Out[31]: array([  1.77827941e-06])
+
+
+    skills_mapping = 'k_traced_skills'
