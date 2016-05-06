@@ -73,6 +73,58 @@ def cumsum_window(obs, N=5):
     return diff
 
 
+def skills_corr_counter_win_v2(ds, sparse_matrix_input, window=None):
+    #If window not specified not use window
+    student_cfa = ds[['student_id', 'correct_first_attempt']]
+    sparse_matrix = csr_matrix(sparse_matrix_input.shapes)
+
+    for col in xrange(sparse_matrix_input.shape[1]):
+
+        skill_indices = np.array(sparse_matrix_input[:,col].nonzero()[0])
+
+        s_cfa = student_cfa.ix[skill_indices]
+        grouped = s_cfa.groupby('student_id')
+
+        if window:
+            cum = grouped.correct_first_attempt.cumsum()
+
+            cum_df = student_cfa.join(cum, how='left', rsuffix='_cum')
+
+            cum_df = cum_df[['student_id', 'correct_first_attempt_cum']]
+
+            grouped_cum = cum_df.groupby('student_id')
+
+            cum_delay = grouped_cum.shift(window)#.fillna(0)
+
+
+            diff = cum - cum_delay
+
+            diff_df = pd.merge(student_cfa, diff,
+                               right_index=True, left_index=True)
+
+            #diff_fraction =
+
+            diff_fraction = diff_df.shift(1).fillna(0)
+
+
+
+            #sg = grouped.apply(cumsum_window, window)
+            #sg = sg.reset_index(level=0).drop('student_id',axis=1)
+            #if sg.shape[0]==1:
+                #sg = sg.transpose()
+        else:
+            sg = grouped.cumsum()
+
+        sg = sg.sort_index()
+
+        indices = np.array(sg.index)
+        values = sg.values
+
+        sparse_matrix[indices,col] = values
+
+    return sparse_matrix
+
+
 def create_and_save_sparses(ds, sparse_list, window_list):
 
     sp_n = 0
@@ -127,16 +179,19 @@ def skills_corr_counter_win(ds,  window=None):
         grouped_cum = cum_df.groupby(['student_id', 'step_id'])
 
         cum_delay = grouped_cum.shift(window).fillna(0)
-        
-
-        cum_delay_df = pd.merge(student_cfa[['student_id', 'step_id']], cum_delay, 
-                            right_index=True, left_index=True)
 
         diff = cum - cum_delay
+
         diff_df = pd.merge(student_cfa[['student_id', 'step_id']], diff, 
                             right_index=True, left_index=True)
         diff_df = diff_df.groupby(['student_id', 'step_id'])
-        diff_df.shift(1).fillna(0)
+        
+        previous_columns = diff_df.shift(1).fillna(0)
+
+        previous_columns.columns = ['prev_corr',  'prev_incorr']
+
+
+        return previous_columns
 
 
 
@@ -148,16 +203,21 @@ def cumsum_window_corr_incorr(obs, col, N=5):
 
     return diff
 
+def hints_column(ds, train_indexes, add_column=True):
 
-
-def create_missing_values_indicators(dataframe, column_name):
-    # This function creates indicator features to know if there was a null value for a particular feature and a particular record
-    column_copy = pd.DataFrame(dataframe[column_name].isnull())
-    new_name = column_name + '_d'
-    column_copy.rename(columns={column_name:new_name}, inplace=True)
-    dummies_column = column_copy.applymap(lambda x: 1 if x else 0)
+    train_df = ds.loc[train_indexes]
+    hints_matrix = train_df.groupby('student_id').hints.mean().reset_index()
+    hints_matrix.columns = ['student_id', 'hints_avg']
     
-    return dummies_column
+    if add_column:
+        merged = ds.merge(hints_matrix, how='left', left_on='student_id', right_on='student_id')
+        return merged
+    else:
+        return hints_matrix
+    
+     
+
+
 
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
