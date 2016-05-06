@@ -19,7 +19,7 @@ import re, string
 import copy
 import csv
 
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, lil_matrix
 
 
 def cleanSubskills(SubskillsList):
@@ -152,7 +152,7 @@ def dictionary_reverser( skillsDictionary):
 
 
 
-def lookUpDictionary(subskills_vectorizer, skillsDictionary):
+def lookUpDictionary(skills_vectorizer, skillsDictionary):
     ''' Receives a vectorizer and a dictionary from 
     clusterDictionary and returns a dictionary of the type
     ClusterNumber:skill_number
@@ -182,18 +182,20 @@ def lookUpDictionary(subskills_vectorizer, skillsDictionary):
 def sparse_matrix_clusterer(sparse_matrix, vectorizer, clusters_dict):
     ''' Receives a sparse matrix, its vectorizer and the clusters
     dictionary from clusterDictionary function and returns 
+    a reduced version of the sparse matrix by summing all the columns
+    which belongs to the same cluster together.
     '''
     clusters_dict_vectorizer = lookUpDictionary(vectorizer,
                                                 clusters_dict)
 
-    dummyMatrix = csr_matrix((sparse_matrix.shape[0],
+    dummyMatrix = lil_matrix((sparse_matrix.shape[0],
                                 len(clusters_dict_vectorizer)))
     
     for key in clusters_dict_vectorizer.keys():
         skills_list = clusters_dict_vectorizer[key]
         dummyMatrix[:,int(key)] = sparse_matrix[:,skills_list].sum(axis=1)
         
-    return dummyMatrix
+    return csr_matrix(dummyMatrix)
 
 def clusterDictionary(data, skillComponent, number_clusters =100, verbose=False):
     ''' Returns a cluster of the type 
@@ -250,7 +252,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-
-
- 68: [153, 154, 155],

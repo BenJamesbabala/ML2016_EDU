@@ -112,27 +112,6 @@ def renamer(data_frame):
     return data_renamed
 
 
-def sparse_kc_skills(ds, skill_column, opportunity_column):
-
-    #Create temporal columns
-    ds.loc[:,'KCop'] = np.array(ds[opportunity_column].str.split('~~'))
-    ds.loc[:,'KCop'] = map(list_string_to_int, ds['KCop'])
-    ds.loc[:,'KC'] = ds[skill_column].str.split('~~')
-    ds.loc[:,'KCzip'] = map(zip,ds.KC,ds.KCop)
-    ds.loc[:,'KCdict'] = ds.KCzip.map(dict)
-
-    #Create sparse matrix
-    #sparse_ds = pd.DataFrame(list(ds['KCdict']), index = ds.index)
-    list_dicts = list(ds['KCdict'])
-    v = DictVectorizer(sparse=True)
-    sparse_ds = v.fit_transform(list_dicts)
-    #Remove temporal columns
-    ds.drop('KCop',1, inplace = True)
-    ds.drop('KC',1, inplace=True)
-    ds.drop('KCzip',1, inplace=True)
-    ds.drop('KCdict',1, inplace=True)
-
-    return sparse_ds, v
 
 
 def list_string_to_int(string_list):
@@ -282,7 +261,7 @@ def main():
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
     #train = pd.read_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t', index_col=0)
 
-    # train = load_ds('./Datasets/algebra_2008_2009/27042016_train.txt')
+    # ds = load_ds('./Datasets/algebra_2008_2009/27042016_train.txt')
 
 
 
