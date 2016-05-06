@@ -9,6 +9,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics import mean_squared_error, log_loss, accuracy_score
 
+from sklearn.ensemble import RandomForestRegressor
+
 import time
 
 def get_non_numeric_features(ds):
@@ -48,15 +50,18 @@ def main():
     non_num_features = get_non_numeric_features(ds)
     ds_num = ds.drop(non_num_features, 1)
 
-    X_ds = ds_num.drop(['correct_first_attempt', 'y_one_negative_one'], 1)
+    X_ds = ds_num.drop(['correct_first_attempt', 'y_one_negative_one',
+                        'incorrects', 'hints', 'corrects'], 1)
+
 
     not_used_columns = [u'step_duration', u'correct_step_duration', u'error_step_duration',
                          u'row']
 
-    X_ds = ds_num.drop(not_used_columns, 1)
+    X_ds = X_ds.drop(not_used_columns, 1)
 
     #Concat sparse matrix and dataframe
-    X = concat_sparse_w_df(skills_sparse_cl, X_ds)
+    X = concat_sparse_w_df(cumulative_skills_sparse, X_ds)
+    X = csr_matrix(hstack([X, skills_sparse_cl]))
 
     #Split X in train and test
     X_train = X[train_ix]
@@ -69,7 +74,7 @@ def main():
 
     #Grid of N for regularization in cross validation
     N = 5
-    Cs = np.logspace(-6, 2, num=N)
+    Cs = np.logspace(-3, 2, num=N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=6)
 
@@ -100,6 +105,19 @@ def main():
     accuracy_test= accuracy_score(y_test,pred_class_test)
 
 
+
+
+
+    rf = RandomForestRegressor(n_estimators=10, criterion='mse', 
+                                max_depth=None, min_samples_split=2,
+                                min_samples_leaf=1, min_weight_fraction_leaf=0.0,
+                                max_features='auto', max_leaf_nodes=None,
+                                bootstrap=True, oob_score=False, n_jobs=6,
+                                random_state=None, verbose=0, warm_start=False)
+
+    print time.ctime()
+    rf.fit(X_train, y_train)
+    print time.ctime()
 
 if __name__ == '__main__':
     main()
