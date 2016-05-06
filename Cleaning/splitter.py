@@ -9,14 +9,15 @@ def splitter(data_frame):
 
     for student, unit in indices:
 
-            indexes_student_unit = indices[student,unit]
+            indices_student_unit = indices[student,unit]
+            data_unit_student = data_frame.ix[indices_student_unit]
 
-            if len(indexes_student_unit)<2:
+            if len(data_unit_student.problem_name.unique())<2:
                 pass
 
             else:
 
-                data_unit_student = data_frame.ix[indices[student,unit]]
+                data_unit_student = data_frame.ix[indices_student_unit]
                 problem_name = data_unit_student['problem_id'][data_unit_student.index[-1]]
                 data_last_problem = data_unit_student[data_unit_student['problem_id']==problem_name]
                 last_view = data_last_problem['view'][data_last_problem.index[-1]]
