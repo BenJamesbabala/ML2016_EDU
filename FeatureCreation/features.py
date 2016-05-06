@@ -170,9 +170,9 @@ def main():
     #1st define which skills column to be used. 
     #Uncomment the one to be used
     
-    #skills_mapping = 'kc_subskills'
+    skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
-    skills_mapping = 'k_traced_skills'
+    #skills_mapping = 'k_traced_skills'
     #Define window to use
     window = 5
     #Define if clustering of skills is used:
@@ -201,7 +201,7 @@ def main():
                                     number_clusters=n_clusters)
 
         #Shrink the sparse matrix using the cluster of skills
-        skills_sparse_cl = sparse_matrix_clusterer(sparse_matrix,
+        skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
                                                     skills_vectorizer,
                                                     clusters_dict)    
             
@@ -218,5 +218,5 @@ if __name__ == '__main__':
 
 
 
-np.save('matrix_2.npy', skills_sparse)
+np.save('skills_sparse_cluster.npy', a)
 
