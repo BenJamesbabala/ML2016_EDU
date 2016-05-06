@@ -132,7 +132,7 @@ def corrects_incorrects_counter_win(ds,  window=None):
         previous_columns.columns = ['prev_corr',  'prev_incorr']
 
         return (previous_columns.prev_corr, previous_columns.prev_incorr)
-    else:
+    
 
 
 
