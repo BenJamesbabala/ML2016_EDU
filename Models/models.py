@@ -34,7 +34,7 @@ def concat_sparse_w_df(sparse, ds):
     in sparse matrix format '''
 
     X_ds_matrix = ds.as_matrix()
-    X_ds_sparse = csr_matrix(X_ds)
+    X_ds_sparse = csr_matrix(sparse)
 
     X_sparse = hstack([X_ds_sparse, sparse])
     
@@ -74,7 +74,7 @@ def main():
 
     #Grid of N for regularization in cross validation
     N = 5
-    Cs = np.logspace(-3, 2, num=N)
+    Cs = np.logspace(-5, 1, num=N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=6)
 
