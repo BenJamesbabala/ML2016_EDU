@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+
 from scipy.sparse import hstack, coo_matrix, vstack, csr_matrix
 import scipy
+
 import sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LogisticRegressionCV
@@ -67,33 +69,6 @@ def main():
     y_test = test_lr.y_one_negative_one
     y01_test = test_lr.correct_first_attempt
 
-
-    # train_lr = train.ix[train_ix].copy()
-    # test_lr = train.ix[test_ix].copy()
-
-    # #Only keep the necessary features for the baseline model
-    # train_lr = remove_unused_columns(train_lr)
-    # test_lr = remove_unused_columns(test_lr)
-
-    # reset_index(train_lr)
-    # reset_index(test_lr)
-
-
-    # #Train set
-    # #Create sparse X_train matrix
-    # X_train_steps = create_sparse_occurences(train_lr, 'step_id')
-    # X_train_stud = create_sparse_occurences(train_lr, 'student_id')
-    # X_train = hstack((X_train_stud, X_train_steps))
-
-
-
-    # #Test set
-    # X_test_steps = create_sparse_occurences(test_lr, 'step_id')
-    # X_test_stud = create_sparse_occurences(test_lr, 'student_id')
-    # X_test = hstack((X_test_stud, X_test_steps))    
-
-
-    
 
     #Grid of N for regularization in cross validation
     N = 10
