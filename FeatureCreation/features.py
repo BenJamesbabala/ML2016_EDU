@@ -128,11 +128,11 @@ def corrects_incorrects_counter_win(ds,  window=None):
                             right_index=True, left_index=True)
         diff_df = diff_df.groupby(['student_id', 'step_id'])
         
-        previous_columns = diff_df.shift(1).fillna(0)
-        previous_columns.columns = ['prev_corr',  'prev_incorr']
+        previous_columns = diff_df.shift(1)
+        previous_columns = previous_columns.fillna(0)
+        previous_columns.columns = ['prev_corr',  'prev_incorr']        
 
         return (previous_columns.prev_corr, previous_columns.prev_incorr)
-    
 
 
 
@@ -157,6 +157,11 @@ def previous_correct_first_attempt_column(data_frame):
     small_data_frame = data_frame[['student_id', 'step_id', 'correct_first_attempt']]
     grouped = small_data_frame.groupby(['student_id', 'step_id'])
     shifted = grouped.shift(periods=1)
+
+    map_0_minus1 = {0:-1}
+    shifted.replace({'correct_first_attempt':map_0_minus1})
+    shifted = shifted.fillna(0)
+
     return shifted.correct_first_attempt
 
 
@@ -171,18 +176,23 @@ def create_missing_values_indicators(dataframe, column_name):
     return dummies_column
 
 
-def hints_column(ds, train_indexes, add_column=False):
+def hints_column(ds, train_indexes):
 
-    train_df = ds.loc[train_indexes]
-    hints_matrix = train_df.groupby('student_id').hints.mean().reset_index()
+    ds_filtered = ds[['student_id', 'hints', 'row']]
+    train_df = ds_filtered.loc[train_indexes]
+    
+    train_gr = train_df.groupby('student_id')
+    mean_hints = train_gr.hints.mean()
+    hints_matrix = mean_hints.reset_index()
     hints_matrix.columns = ['student_id', 'hints_avg']
     
-    merged = ds.merge(hints_matrix, how='left', left_on='student_id', right_on='student_id')
-    
-    if add_column:        
-        return merged
-    else:
-        return merged.hints_avg
+    merged = ds_filtered.merge(hints_matrix, how='left',
+                                left_on='student_id', right_on='student_id')
+
+    return merged.hints_avg
+
+
+
   
 def sparse_kc_skills(ds, skill_column, opportunity_column):
 
@@ -261,12 +271,17 @@ def main():
     
     #Create previous CFA column
     prev_cfa = previous_correct_first_attempt_column(ds)   
+    ds['prev_cfa'] = prev_cfa
     
     #Create cumulative columns for corrects and incorrects columns
     prev_corr, prev_incorr= corrects_incorrects_counter_win(ds, window=window)
+    ds['prev_corr'] = prev_corr
+    ds['prev_incorr'] = prev_incorr
 
     #Create hints column
-    hints_column(ds, train_indexes)
+    hints_rate = hints_column(ds, train_ix)
+    ds['hints_rate'] = hints_rate
+
 
 
 
