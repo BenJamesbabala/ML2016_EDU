@@ -3,7 +3,7 @@ import numpy as np
 import graphlab as gl
 
 
-def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False,user_data = None, item_data=None):
+def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False,user_data = None, item_data=None ,num_factors = 8 ,max_iterations =100):
     '''
     input: pandas dataframe, need columns names for user/item uses default student_id and step_id
         CAN provide pandas df that summarizes users and or items
@@ -16,17 +16,19 @@ def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'corre
     userDF = pd.DataFrame()
 
 
-    if user_data !=None:
-        user_data = gl.SFrame(user_data)
-    if item_data !=None:
-        user_data = gl.SFrame(item_data)
+    # if user_data !=None:
+    #     user_data = gl.SFrame(user_data)
+    # if item_data !=None:
+    #     user_data = gl.SFrame(item_data)
 
-    if allVariables==False:
-        #dont use extra data
-        trainingData = trainingData[[item,user,targ]]
+    # if allVariables==False:
+    #     #dont use extra data
+    #     trainingData = trainingData[[item,user,targ]]
 
+    trainingData = trainingData[[item,user,targ]]
     sf = gl.SFrame(trainingData)
-    model =gl.recommender.create( sf , user_id= user,item_id = item ,target = targ, ranking =False, user_data=user_data, item_data=item_data)
+    model =gl.recommender.factorization_recommender.create( sf , user_id= user,item_id = item, target = targ, num_factors =num_factors, user_data=user_data, item_data=item_data, max_iterations =max_iterations,verbose =False)
+    
     recomendations= model.recommend()
 
     latentVariablesItem = model['coefficients'][item]['factors']
@@ -51,6 +53,7 @@ def factorsToMergeWithData(data,itemFactors, userFactors):
 
 
 	'''
+
 	data= data[['student_id','step_id']]
 	final = pd.DataFrame()
 	merged1 = data.merge( itemFactors, how = 'inner',left_on='step_id', right_on='step_id')
@@ -69,12 +72,13 @@ def main():
 	location = '/home/michael/Desktop/machineLearningProject/27042016_train.txt' 
 	data = pd.read_csv(location,sep ='\t',nrows =100000 ,skipinitialspace =False)
 
-	itemDF,userDF, model = getLatents(data, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False)
+	itemDF,userDF, model = getLatents(data, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False, num_factors = 4)
 
 	#print model['coefficients']
 	#print( itemDF.shape )
-	print factorsToMergeWithData(data, itemDF, userDF).head()
-	
+
+	factorsToMergeWithData(data, itemDF, userDF).to_csv('latentCombinations.csv' )
+
 
 
 
