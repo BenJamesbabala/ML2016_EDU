@@ -6,7 +6,7 @@ import sklearn
 
 from skillsClustering.ClusterSkills import *
 from Cleaning.splitter import *
-from 
+
 
 def skills_corr_counter_win_v2(ds, sparse_matrix_input, window=None):
     #If window not specified not use window
@@ -235,11 +235,11 @@ def main():
     
     skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
-    #skills_mapping = 'k_traced_skills'
+    #skills_mapping = 'kc_rules'
     #Define window to use
     window = 10
     #Define if clustering of skills is used:
-    clustering = True
+    clustering = False
     n_clusters = 75
 
 
@@ -266,7 +266,9 @@ def main():
         #Shrink the sparse matrix using the cluster of skills
         skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
                                                     skills_vectorizer,
-                                                    clusters_dict)    
+                                                    clusters_dict)
+    else:
+        skills_sparse_cl = skills_sparse    
     
     #Apply a cumulative window to the skills sparse matrix        
     cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
@@ -285,6 +287,7 @@ def main():
     ds['hints_rate'] = hints_rate
 
     # ds.to_csv('./Datasets/algebra_2008_2009/ds_featurized.txt', sep='\t')
+
 
 
 if __name__ == '__main__':
