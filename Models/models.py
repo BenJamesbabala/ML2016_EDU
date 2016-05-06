@@ -74,7 +74,7 @@ def main():
 
     #Grid of N for regularization in cross validation
     N = 5
-    Cs = np.logspace(-5, 1, num=N)
+    Cs = np.logspace(-7, -2, num=N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=6)
 
