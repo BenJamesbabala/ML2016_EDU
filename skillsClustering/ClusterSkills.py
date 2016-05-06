@@ -152,7 +152,7 @@ def dictionary_reverser( skillsDictionary):
 
 
 
-def lookUpDictionary(subskills_vectorizer, skillsDictionary):
+def lookUpDictionary(skills_vectorizer, skillsDictionary):
     ''' Receives a vectorizer and a dictionary from 
     clusterDictionary and returns a dictionary of the type
     ClusterNumber:skill_number
