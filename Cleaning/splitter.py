@@ -29,3 +29,6 @@ def splitter(data_frame):
 
 
     return train_indices, test_indices
+
+
+
