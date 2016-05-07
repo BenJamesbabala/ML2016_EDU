@@ -5,7 +5,9 @@ import scipy
 import sklearn
 
 from skillsClustering.ClusterSkills import *
+from Cleaning.clean import *
 from Cleaning.splitter import *
+from skillsClustering.ClusterSkills import *
 
 
 def skills_corr_counter_win_v2(ds, sparse_matrix_input, window=None):
@@ -239,7 +241,7 @@ def main():
     #Define window to use
     window = 10
     #Define if clustering of skills is used:
-    clustering = False
+    clustering = True
     n_clusters = 75
 
 
@@ -272,7 +274,7 @@ def main():
     
     #Apply a cumulative window to the skills sparse matrix        
     cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
-    
+
     #Create previous CFA column
     prev_cfa = previous_correct_first_attempt_column(ds)   
     ds['prev_cfa'] = prev_cfa
