@@ -206,8 +206,272 @@ SETUP:
     					cumulative_skills_sparse
     Train time:			10 min
 
-In [31]: lr.C_
-Out[31]: array([  1.77827941e-06])
+In [53]: lr.C_
+Out[53]: array([  1.77827941e-06])
+
+---------------------------
+Test set evaluation
+---------------------------
+In [54]: rmse_train
+Out[54]: 0.34873999645804188
+
+In [56]: logloss_train
+Out[56]: 0.40157502774744197
+
+In [57]: accuracy_train
+Out[57]: 0.84949114667001713
 
 
-    skills_mapping = 'k_traced_skills'
+---------------------------
+Test set evaluation
+---------------------------
+In [61]: rmse_test
+Out[61]: 0.34841780516140447
+
+In [62]: logloss_test
+Out[62]: 0.40302915881801654
+
+In [63]: accuracy_test
+Out[63]: 0.85286108776563818
+
+
+
+------
+	5
+------
+SETUP:
+    skills_mapping = 	'kc_subskills'
+    window = 			10
+    clustering = 		False
+    n_clusters = 		---
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			10 min
+
+In [73]: lr.C_
+Out[73]: array([  1.00000000e-07])
+
+
+---------------------------
+Test set evaluation
+---------------------------
+In [76]:     rmse_train
+Out[76]: 0.34995913571282089
+
+In [77]:     logloss_train 
+Out[77]: 0.3997650110194631
+
+In [78]:     accuracy_train
+Out[78]: 0.84898144868257197
+
+
+---------------------------
+Test set evaluation
+---------------------------
+In [80]:     rmse_test
+Out[80]: 0.34793934738279297
+
+In [81]:     logloss_test 
+Out[81]: 0.39899855894281688
+
+In [82]:     accuracy_test
+Out[82]: 0.85210469444110937
+
+
+
+------
+	6
+------
+SETUP:
+    skills_mapping = 	3 skills
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			10 min
+
+In [118]: lr.C_
+Out[118]: array([ 0.0001])
+
+---------------------------
+Train set evaluation
+---------------------------
+In [111]:     rmse_train
+Out[111]: 0.3415181484997945
+
+In [112]:     logloss_train 
+Out[112]: 0.38227335348077907
+
+In [113]:     accuracy_train
+Out[113]: 0.85000295630111833
+
+---------------------------
+Test set evaluation
+---------------------------
+In [115]:     rmse_test
+Out[115]: 0.34133103821697913
+
+In [116]:     logloss_test 
+Out[116]: 0.38433419987844947
+
+In [117]:     accuracy_test
+Out[117]: 0.85340617120902873
+
+
+------
+	7
+------
+SETUP:
+    skills_mapping = 	kc_subskills
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl
+    					Latent
+    Train time:			10 min
+In [147]: lr.C_
+Out[147]: array([ 0.0001])
+
+---------------------------
+Train set evaluation
+---------------------------
+In [143]:     rmse_train
+Out[143]: 0.34673560644542711
+
+In [144]:     logloss_train 
+Out[144]: 0.3950435091705739
+---------------------------
+Test set evaluation
+---------------------------
+In [145]:     rmse_test
+Out[145]: 0.34611581234367067
+
+In [146]:     logloss_test 
+Out[146]: 0.39677944776747004
+
+
+------
+	8
+------
+SETUP:
+    skills_mapping = 	kc_subskills
+    window = 			None
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl   
+    					baseline 					
+    Train time:			4 min
+
+In [161]: lr.C_
+Out[161]: array([  1.00000000e-07])
+
+In [157]:     rmse_train
+Out[157]: 0.35334409983066867
+In [158]:     logloss_train 
+Out[158]: 0.41147226700574568
+
+In [159]:     rmse_test
+Out[159]: 0.35279041571271508
+In [160]:     logloss_test 
+Out[160]: 0.41267455998821212
+
+
+------
+	9
+------
+SETUP:
+    skills_mapping = 	kc_subskills
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl    					
+    Train time:			10 min
+
+In [161]: lr.C_
+Out[161]: array([  1.00000000e-07])
+
+In [182]:     rmse_train
+Out[182]: 0.35334409983066867
+In [183]:     logloss_train 
+Out[183]: 0.41147226700574568
+
+In [184]:     rmse_test
+Out[184]: 0.35279041571271508
+In [185]:     logloss_test 
+Out[185]: 0.41267455998821212
+
+
+
+
+
+
+++++++++++++++++++++++
+Random Forest
+++++++++++++++++++++++
+RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
+           max_features='auto', max_leaf_nodes=None, min_samples_leaf=1,
+           min_samples_split=2, min_weight_fraction_leaf=0.0,
+           n_estimators=10, n_jobs=20, oob_score=False, random_state=None,
+           verbose=0, warm_start=False)
+
+------
+	8
+------
+SETUP:
+    skills_mapping = 	3 skills
+    window = 			10
+    clustering = 		True
+    n_clusters = 		75 (NO CLUSTER DOESN'T HELP)
+    Sparse matrices: 	skills_sparse_cl
+    					cumulative_skills_sparse
+    Train time:			10 min
+
+
+---------------------------
+Train set evaluation
+---------------------------
+In [88]:     rmse_train
+Out[88]: 0.34094462435682638
+
+In [89]:     logloss_train 
+Out[89]: 0.38268801347626602
+---------------------------
+Test set evaluation
+---------------------------
+In [90]:     rmse_test
+Out[90]: 0.34407037095879905
+
+In [91]:     logloss_test 
+Out[91]: 0.40512456820151671
+
+
+
+
+------
+	8
+------
+SETUP:
+    skills_mapping = 	kc_subskills
+    window = 			None
+    clustering = 		True
+    n_clusters = 		75
+    Sparse matrices: 	skills_sparse_cl    					
+    Train time:			10 min
+
+RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=None,
+           max_features='auto', max_leaf_nodes=None, min_samples_leaf=1,
+           min_samples_split=2, min_weight_fraction_leaf=0.0,
+           n_estimators=10, n_jobs=20, oob_score=False, random_state=None,
+           verbose=0, warm_start=False)
+
+
+In [160]:     rmse_train
+Out[160]: 0.33037815093674811
+In [161]:     logloss_train 
+Out[161]: 0.36366674292296525
+
+In [162]:     rmse_test
+Out[162]: 0.36197135956309962
+In [163]:     logloss_test 
+Out[163]: 0.81734622785631561
