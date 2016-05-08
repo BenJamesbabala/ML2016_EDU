@@ -114,11 +114,6 @@ def renamer(data_frame):
 
 
 
-def list_string_to_int(string_list):
-    '''Convert a list of strings to a list of integers'''
-    return map(int, string_list)
-
-
 def create_target_to_one_negative_one(ds):
     ds['y_one_negative_one'] = ds.correct_first_attempt
     mapping_dict = {0:-1}

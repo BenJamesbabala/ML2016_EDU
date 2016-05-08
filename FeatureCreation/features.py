@@ -196,6 +196,9 @@ def hints_column(ds, train_indexes):
     return merged.hints_avg
 
 
+def list_string_to_int(string_list):
+    '''Convert a list of strings to a list of integers'''
+    return map(int, string_list)
 
   
 def sparse_kc_skills(ds, skill_column, opportunity_column):
