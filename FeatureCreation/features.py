@@ -223,7 +223,42 @@ def sparse_kc_skills(ds, skill_column, opportunity_column):
 
     return sparse_ds, v
 
-     
+
+def create_skills_cum_sparse(skills_mapping, window=10, 
+                            clustering=True, n_clusters=75):
+    
+    #Creation of the sparse subskills matrix
+    if skills_mapping == 'kc_subskills':
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'kc_subskills',
+                                                            'opp_subskills')
+    elif skills_mapping == 'k_traced_skills':
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'k_traced_skills',
+                                                            'opp_k_traced')
+    else:
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'kc_rules',
+                                                            'opp_rules')
+    #Clustering of skills
+    if clustering:
+        clusters_dict = clusterDictionary(ds, skills_mapping, 
+                                    number_clusters=n_clusters)
+        #Shrink the sparse matrix using the cluster of skills
+        skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
+                                                    skills_vectorizer,
+                                                    clusters_dict)
+    else:
+        skills_sparse_cl = skills_sparse   
+
+    #Apply a cumulative window to the skills sparse matrix        
+    cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
+
+    return cumulative_skills_sparse
+    
+
+
+
 
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
@@ -297,8 +332,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
 
 
