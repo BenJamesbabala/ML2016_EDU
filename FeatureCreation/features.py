@@ -269,6 +269,9 @@ def main():
 
     #Define the train/test split
     train_ix, test_ix = splitter(ds)
+    train_ix, val_ix = splitter(ds)
+    train_ix, test_ix = splitter(ds.ix[train_ix])
+
     #1st define which skills column to be used. 
     #Uncomment the one to be used
     
