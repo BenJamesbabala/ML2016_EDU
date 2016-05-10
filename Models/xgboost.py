@@ -1,16 +1,18 @@
 import xgboost as xgb
 
 dtrain = xgb.DMatrix( X_train, y_train)
-dtest = xgb.DMatrix( X_test, y_test)
+dval = xgb.DMatrix( X_val, y_val)
+
+dxtest = xgb.DMatrix( X_test)
 
 param = {'bst:max_depth':2, 'bst:eta':1, 'silent':1, 'objective':'binary:logistic' }
-param['nthread'] = 4
-param['eval_metric'] = ['logloss', 'rmse']
+param['nthread'] = 20
+param['eval_metric'] = ['logloss']
 param['tree_method'] = 'exact'
 
-evallist  = [(dtest,'eval'), (dtrain,'train')]
+evallist  = [(dval,'eval'), (dtrain,'train')]
 
-num_round = 6000
+num_round = 200
 bst = xgb.train( param, dtrain, num_round, evallist )
 
 

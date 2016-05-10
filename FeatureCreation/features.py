@@ -267,17 +267,17 @@ def create_skills_cum_sparse(skills_mapping, window=10,
 
 def main():
 
-    #Define the train/test split
+    #Define the train/val/test split
+
     train_ix, test_ix = splitter(ds)
-    train_ix, val_ix = splitter(ds)
-    train_ix, test_ix = splitter(ds.ix[train_ix])
+    train_ix, val_ix = splitter(ds.ix[train_ix])
 
     #1st define which skills column to be used. 
     #Uncomment the one to be used
     
-    skills_mapping = 'kc_subskills'
+    #skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
-    #skills_mapping = 'kc_rules'
+    skills_mapping = 'kc_rules'
     #Define window to use
     window = 10
     #Define if clustering of skills is used:

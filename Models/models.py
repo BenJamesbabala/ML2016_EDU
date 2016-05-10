@@ -63,26 +63,87 @@ def main():
     X = concat_sparse_w_df(cumulative_skills_sparse, X_ds)
 
     #Use latent variables
-    #latent_matrix = latent.as_matrix()
+    latent_matrix = latent.as_matrix()
     X = csr_matrix(hstack([X, latent_matrix]))
-    X = csr_matrix(hstack([X, X_baseline]))
+    #X = csr_matrix(hstack([X, X_baseline]))
 
     #X = csr_matrix(hstack([X, cumulative_skills_sparse]))
 
-    #Split X in train and test
+    #Split X in train and validation
     X_train = X[train_ix]
-    X_test = X[test_ix]
+    X_val = X[val_ix]
 
     y = ds_num.correct_first_attempt
     y_train = y.loc[train_ix]
+    y_val = y.loc[val_ix]
+
     y_test = y.loc[test_ix]
+    X_test = X[test_ix]
 
 
 
-
-    #Grid of N for regularization in cross validation
+    #Grid of N for regularization for grid search of hyperparameters
     N = 5
-    Cs = np.logspace(-10, -4, num=N)
+    Cs = np.logspace(-1, 2, num=N)
+    penalties = ['l1', 'l2']
+
+    models = []
+    train_ll = []
+    val_ll = []
+    train_rmse = []
+    val_rmse = []
+
+    for penalty in penalties:
+        for C in Cs:
+            lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
+                                    fit_intercept=True, intercept_scaling=1, 
+                                    class_weight=None, random_state=None, 
+                                    solver='liblinear', max_iter=100, 
+                                    multi_class='ovr', verbose=0, 
+                                    warm_start=False, n_jobs=4)
+
+            lr.fit(X_train, y_train)
+            print penalty
+            print C
+            print 'Train Completed'
+
+            #Evaluation in train set
+            pred_proba_train = lr.predict_proba(X_train)
+            pred_proba_train_1 = [x[1] for x in pred_proba_train]
+        
+            mse_train = mean_squared_error(y_train, pred_proba_train_1)
+            rmse_train = np.sqrt(mse_train)
+            train_rmse.append(rmse_train)
+
+            logloss_train = log_loss(y_train, pred_proba_train_1)
+            train_ll.append(logloss_train)
+
+        
+            #Evaluation in validation set
+            pred_proba_val = lr.predict_proba(X_val)
+            pred_proba_val_1 = [x[1] for x in pred_proba_val]
+
+        
+            mse_val = mean_squared_error(y_val, pred_proba_val_1)
+            rmse_val = np.sqrt(mse_val)
+            val_rmse.append(rmse_val)
+
+            logloss_val = log_loss(y_val, pred_proba_val_1)
+            val_ll.append(logloss_val)
+
+
+
+
+
+#pred_proba_test = lr.predict_proba(X_test)
+#pred_proba_test_1 = [x[1] for x in pred_proba_test]
+#
+#mse_test = mean_squared_error(y_test, pred_proba_test_1)
+#rmse_test = np.sqrt(mse_test)
+#logloss_test = log_loss(y_test, pred_proba_test_1)
+
+
+
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=6)
 

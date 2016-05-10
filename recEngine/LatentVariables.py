@@ -29,7 +29,7 @@ def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'corre
                                                             target = targ, num_factors =num_factors,
                                                             user_data=user_data, item_data=item_data, 
                                                             max_iterations =max_iterations,
-                                                            verbose =True)
+                                                            verbose =True, binary_target=True)
     
     #recomendations= model.recommend()
 
@@ -68,15 +68,15 @@ def main():
     #location = '/home/michael/Desktop/machineLearningProject/27042016_train.txt' 
     #data = pd.read_csv(location,sep ='\t',nrows =10 ,skipinitialspace =False)
     data = ds
-    itemDF,userDF, model = getLatents(data, user = 'student_id', 
+    itemDF,userDF, model = getLatents(ds.ix[train_ix], user = 'student_id', 
                                         item = 'step_id',targ = 'correct_first_attempt',
-                                        allVariables = False, num_factors = 4)
+                                        allVariables = False, num_factors = 8)
 
     #print model['coefficients']
     #print( itemDF.shape )
     
-    #factorsToMergeWithData(data, itemDF, userDF).to_csv('latentCombinations.csv' )
-
+    latent_df = factorsToMergeWithData(ds, itemDF, userDF)
+    # latent_df.to_csv('./Datasets/algebra_2008_2009/latent_df', sep='\t')
 
 
 
@@ -87,18 +87,11 @@ if __name__ == '__main__':
 
 
 
-
-#testData = ds.ix[test_ix][['step_id', 'student_id']]
-#sf_test = gl.SFrame(testData)
-#model.predict(testData)
-#
-#y_test = ds.ix[test_ix].correct_first_attempt
-#np.sqrt(mean_squared_error(y_test, pred))
-#
-#merged1[merged1.step_id == '0REAL20BR3C1']
-#rged
-#
-#merged2[merged2.student_id == 'stu_8575574503']
+#X_val = ds.ix[val_ix][['step_id','student_id']]
+#X_val_sf = gl.SFrame(X_val)
+#pred_sf = model.predict(X_val_sf)
+#pred = np.array(pred_sf)
 #
 #
-#stu_244b6a9fdd
+#
+#y_val = ds.ix[val_ix].correct_first_attempt
