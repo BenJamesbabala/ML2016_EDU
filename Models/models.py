@@ -34,7 +34,7 @@ def concat_sparse_w_df(sparse, ds):
     in sparse matrix format '''
 
     X_ds_matrix = ds.as_matrix()
-    X_ds_sparse = csr_matrix(X_ds)
+    X_ds_sparse = csr_matrix(sparse)
 
     X_sparse = hstack([X_ds_sparse, sparse])
     
@@ -70,6 +70,8 @@ def main():
     y = ds_num.correct_first_attempt
     y_train = y.loc[train_ix]
     y_test = y.loc[test_ix]
+
+
 
 
     #Grid of N for regularization in cross validation
