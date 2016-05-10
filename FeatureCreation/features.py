@@ -6,7 +6,7 @@ import sklearn
 
 from skillsClustering.ClusterSkills import *
 from Cleaning.splitter import *
-from 
+ 
 
 def skills_corr_counter_win_v2(ds, sparse_matrix_input, window=None):
     #If window not specified not use window
