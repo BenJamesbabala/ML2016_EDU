@@ -5,8 +5,9 @@ import scipy
 import sklearn
 
 from skillsClustering.ClusterSkills import *
+from Cleaning.clean import *
 from Cleaning.splitter import *
- 
+
 
 def skills_corr_counter_win_v2(ds, sparse_matrix_input, window=None):
     #If window not specified not use window
@@ -194,6 +195,9 @@ def hints_column(ds, train_indexes):
     return merged.hints_avg
 
 
+def list_string_to_int(string_list):
+    '''Convert a list of strings to a list of integers'''
+    return map(int, string_list)
 
   
 def sparse_kc_skills(ds, skill_column, opportunity_column):
@@ -218,7 +222,42 @@ def sparse_kc_skills(ds, skill_column, opportunity_column):
 
     return sparse_ds, v
 
-     
+
+def create_skills_cum_sparse(skills_mapping, window=10, 
+                            clustering=True, n_clusters=75):
+    
+    #Creation of the sparse subskills matrix
+    if skills_mapping == 'kc_subskills':
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'kc_subskills',
+                                                            'opp_subskills')
+    elif skills_mapping == 'k_traced_skills':
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'k_traced_skills',
+                                                            'opp_k_traced')
+    else:
+        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+                                                            'kc_rules',
+                                                            'opp_rules')
+    #Clustering of skills
+    if clustering:
+        clusters_dict = clusterDictionary(ds, skills_mapping, 
+                                    number_clusters=n_clusters)
+        #Shrink the sparse matrix using the cluster of skills
+        skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
+                                                    skills_vectorizer,
+                                                    clusters_dict)
+    else:
+        skills_sparse_cl = skills_sparse   
+
+    #Apply a cumulative window to the skills sparse matrix        
+    cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
+
+    return cumulative_skills_sparse
+    
+
+
+
 
 
 #sparse_list = [subskills_sparse, k_traced_sparse, kc_rules_sparse]
@@ -235,7 +274,7 @@ def main():
     
     skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
-    #skills_mapping = 'k_traced_skills'
+    #skills_mapping = 'kc_rules'
     #Define window to use
     window = 10
     #Define if clustering of skills is used:
@@ -265,12 +304,13 @@ def main():
 
         #Shrink the sparse matrix using the cluster of skills
         skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
-                                                    skills_vectorizer,
-                                                    clusters_dict)      
+                                                    skills_vectorizer, clusters_dict)      
+    else:
+        skills_sparse_cl = skills_sparse    
     
     #Apply a cumulative window to the skills sparse matrix        
     cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
-    
+
     #Create previous CFA column
     prev_cfa = previous_correct_first_attempt_column(ds)   
     ds['prev_cfa'] = prev_cfa
@@ -287,10 +327,8 @@ def main():
     # ds.to_csv('./Datasets/algebra_2008_2009/ds_featurized.txt', sep='\t')
 
 
+
 if __name__ == '__main__':
     main()
-
-
-
 
 

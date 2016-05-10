@@ -61,7 +61,13 @@ def main():
 
     #Concat sparse matrix and dataframe
     X = concat_sparse_w_df(cumulative_skills_sparse, X_ds)
-    X = csr_matrix(hstack([X, skills_sparse_cl]))
+
+    #Use latent variables
+    #latent_matrix = latent.as_matrix()
+    X = csr_matrix(hstack([X, latent_matrix]))
+    X = csr_matrix(hstack([X, X_baseline]))
+
+    #X = csr_matrix(hstack([X, cumulative_skills_sparse]))
 
     #Split X in train and test
     X_train = X[train_ix]
@@ -76,7 +82,7 @@ def main():
 
     #Grid of N for regularization in cross validation
     N = 5
-    Cs = np.logspace(-3, 2, num=N)
+    Cs = np.logspace(-10, -4, num=N)
     lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
         scoring='log_loss', n_jobs=6)
 
@@ -114,12 +120,36 @@ def main():
                                 max_depth=None, min_samples_split=2,
                                 min_samples_leaf=1, min_weight_fraction_leaf=0.0,
                                 max_features='auto', max_leaf_nodes=None,
-                                bootstrap=True, oob_score=False, n_jobs=6,
+                                bootstrap=True, oob_score=False, n_jobs=20,
                                 random_state=None, verbose=0, warm_start=False)
 
     print time.ctime()
     rf.fit(X_train, y_train)
     print time.ctime()
 
+    #Evaluation in train set
+    pred_proba_train = rf.predict(X_train)
+    
+    mse_train = mean_squared_error(y_train, pred_proba_train)
+    rmse_train = np.sqrt(mse_train)
+    logloss_train = log_loss(y_train, pred_proba_train)
+    
+    #Evaluation in test set
+    pred_proba_test = rf.predict(X_test)
+    
+    mse_test = mean_squared_error(y_test, pred_proba_test)
+    rmse_test = np.sqrt(mse_test)
+    logloss_test = log_loss(y_test, pred_proba_test)
+    
+
+
 if __name__ == '__main__':
     main()
+
+
+
+    rmse_train
+    logloss_train 
+
+    rmse_test
+    logloss_test 

@@ -114,11 +114,6 @@ def renamer(data_frame):
 
 
 
-def list_string_to_int(string_list):
-    '''Convert a list of strings to a list of integers'''
-    return map(int, string_list)
-
-
 def create_target_to_one_negative_one(ds):
     ds['y_one_negative_one'] = ds.correct_first_attempt
     mapping_dict = {0:-1}
@@ -220,42 +215,42 @@ def load_ds(path):
 
 def main():
     
-    train = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
+    ds = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_train.txt', sep='\t')
     #test = pd.read_csv('./Datasets/algebra_2008_2009/algebra_2008_2009_test.txt', sep='\t')
 
     #Rename columns
-    train = renamer(train)
+    ds = renamer(ds)
     #Split problem  hierarchy into unit and section
-    train = split_problem_hierarchy(train)
+    ds = split_problem_hierarchy(ds)
     #Change unit to an integer
-    train = unit_to_int(train)
+    ds = unit_to_int(ds)
     #Create a unique problem identificator
-    create_unique_problem_id(train)
+    create_unique_problem_id(ds)
     #Create a unique step identificator
-    create_unique_step_id(train)
+    create_unique_step_id(ds)
     #Remove steps which were solved only once
-    train = train.ix[get_multiple_instance_steps(train)]
+    #ds = ds.ix[get_multiple_instance_steps(ds)]
 
-    train = reset_index(train)
+    ds = reset_index(ds)
     #Dataset contains a column called Error Step Duration which can be NaN
     #if there is a missing value or if the step was solved correctly (valid NaN). 
     #Set the value of valid NaNs to -1
-    set_value_for_index_column(train, valid_error_step_duration(train), 'error_step_duration',-1)    
+    set_value_for_index_column(ds, valid_error_step_duration(ds), 'error_step_duration',-1)    
 
-    train = fill_KC_null(train, 'kc_subskills')
-    train = fill_KC_null(train, 'k_traced_skills')
-    train = fill_KC_null(train, 'kc_rules')
+    ds = fill_KC_null(ds, 'kc_subskills')
+    ds = fill_KC_null(ds, 'k_traced_skills')
+    ds = fill_KC_null(ds, 'kc_rules')
 
-    train = fill_KC_op_null(train, 'kc_subskills', 'opp_subskills')
-    train = fill_KC_op_null(train, 'k_traced_skills', 'opp_k_traced')
-    train = fill_KC_op_null(train, 'kc_rules', 'opp_rules')
+    ds = fill_KC_op_null(ds, 'kc_subskills', 'opp_subskills')
+    ds = fill_KC_op_null(ds, 'k_traced_skills', 'opp_k_traced')
+    ds = fill_KC_op_null(ds, 'kc_rules', 'opp_rules')
 
     #Change encodings of problem and step name to unicode
-    change_encoding(train, 'problem_name')
-    change_encoding(train, 'step_name')
+    change_encoding(ds, 'problem_name')
+    change_encoding(ds, 'step_name')
 
     #Create a target variable column with -1 and 1 instead 0 and 1
-    train = create_target_to_one_negative_one(train)
+    ds = create_target_to_one_negative_one(ds)
 
     #train.to_csv('./Datasets/algebra_2008_2009/27042016_train.txt', sep='\t')
     #train1 = pd.read_csv('./Datasets/algebra_2008_2009/22042016_train.txt', sep='\t', index_col=0)
