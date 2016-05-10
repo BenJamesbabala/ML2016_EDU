@@ -16,16 +16,15 @@ def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'corre
     userDF = pd.DataFrame()
 
 
-    # if user_data !=None:
-    #     user_data = gl.SFrame(user_data)
-    # if item_data !=None:
-    #     user_data = gl.SFrame(item_data)
+    if user_data !=None:
+        user_data = gl.SFrame(user_data)
+    if item_data !=None:
+        user_data = gl.SFrame(item_data)
 
-    # if allVariables==False:
-    #     #dont use extra data
-    #     trainingData = trainingData[[item,user,targ]]
+    if allVariables==False:
+        #dont use extra data
+        trainingData = trainingData[[item,user,targ]]
 
-    trainingData = trainingData[[item,user,targ]]
     sf = gl.SFrame(trainingData)
     model =gl.recommender.factorization_recommender.create( sf , user_id= user,item_id = item, target = targ, num_factors =num_factors, user_data=user_data, item_data=item_data, max_iterations =max_iterations,verbose =False)
     
@@ -46,31 +45,25 @@ def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'corre
 
     return itemDF, userDF , model
 
+
 def factorsToMergeWithData(data,itemFactors, userFactors):
-	'''
-	itemFactors and userFactors are output from getLatents, data is data that getLatents was apllied to
-	output: pandas DF whose index are same as data and matches
+    data= data[['student_id','step_id']]
+    final = pd.DataFrame()
 
-
-	'''
-
-	data= data[['student_id','step_id']]
-	final = pd.DataFrame()
-	merged1 = data.merge( itemFactors, how = 'inner',left_on='step_id', right_on='step_id')
-	merged2 = userFactors.merge(merged1,how = 'inner',left_on='student_id',right_on='student_id')
+    merged1 = data.merge( itemFactors, how = 'inner',left_on='step_id', right_on='step_id')
+    merged2 = userFactors.merge(merged1,how = 'inner',left_on='student_id',right_on='student_id')
         
-	for i in range(itemFactors.shape[1]-1):
-		merged2['cross'+str(i)] = merged2[str('itemLatent'+ str(i))] * merged2[str('userLatent'+ str(i))]  
+    for i in range(itemFactors.shape[1]-1):
+        merged2['cross'+str(i)] = merged2[str('itemLatent'+ str(i))] * merged2[str('userLatent'+ str(i))]  
         
-	merged2.drop(['student_id','step_id'],inplace=True,axis=1)
+    merged2.drop(['student_id','step_id'],inplace=True,axis=1)
     
-	return merged2
-
+    return merged2
 
 
 def main():
 	location = '/home/michael/Desktop/machineLearningProject/27042016_train.txt' 
-	data = pd.read_csv(location,sep ='\t',nrows =100000 ,skipinitialspace =False)
+	data = pd.read_csv(location,sep ='\t',nrows =10 ,skipinitialspace =False)
 
 	itemDF,userDF, model = getLatents(data, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False, num_factors = 4)
 
