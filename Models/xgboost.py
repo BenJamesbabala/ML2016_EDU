@@ -52,23 +52,23 @@ import numpy as np
 
 
 
-pred_proba_train = bst.predict(X_train)
-
-mse_train = mean_squared_error(y_train, pred_proba_train)
-rmse_train = np.sqrt(mse_train)
-logloss_train = log_loss(y_train, pred_proba_train)
-
-#Evaluation in validation set
-pred_proba_val = bst.predict(X_val)
-
-mse_val = mean_squared_error(y_val, pred_proba_val)
-rmse_val = np.sqrt(mse_val)
-logloss_val = log_loss(y_val, pred_proba_val)
-
-rmse_train
-rmse_val
-logloss_train
-logloss_val
+#pred_proba_train = bst.predict(X_train)
+#
+#mse_train = mean_squared_error(y_train, pred_proba_train)
+#rmse_train = np.sqrt(mse_train)
+#logloss_train = log_loss(y_train, pred_proba_train)
+#
+##Evaluation in validation set
+#pred_proba_val = bst.predict(X_val)
+#
+#mse_val = mean_squared_error(y_val, pred_proba_val)
+#rmse_val = np.sqrt(mse_val)
+#logloss_val = log_loss(y_val, pred_proba_val)
+#
+#rmse_train
+#rmse_val
+#logloss_train
+#logloss_val
 
 
 def gridsearch_xgboost(dtrain, dval, y_train, y_val):
