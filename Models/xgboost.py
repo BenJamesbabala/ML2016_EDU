@@ -74,7 +74,9 @@ import numpy as np
 def gridsearch_xgboost(dtrain, dval, y_train, y_val):
     
     depths = [3,20,50,100]
-    alphas = np.logspace(-7,0,7)
+    alphas = [1.00000000e-07,   1.46779927e-06,   2.15443469e-05,
+         3.16227766e-04,   4.64158883e-03,   6.81292069e-02,
+         1.00000000e+00]
 
     train_rmse = {}
     train_ll = {}
