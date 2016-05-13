@@ -34,7 +34,7 @@ def concat_sparse_w_df(sparse, ds):
     in sparse matrix format '''
 
     X_ds_matrix = ds.as_matrix()
-    X_ds_sparse = csr_matrix(sparse)
+    X_ds_sparse = csr_matrix(X_ds_matrix)
 
     X_sparse = hstack([X_ds_sparse, sparse])
     
@@ -53,7 +53,6 @@ def main():
     X_ds = ds_num.drop(['correct_first_attempt', 'y_one_negative_one',
                         'incorrects', 'hints', 'corrects'], 1)
 
-
     not_used_columns = [u'step_duration', u'correct_step_duration', u'error_step_duration',
                          u'row']
 
@@ -61,6 +60,7 @@ def main():
 
     #Concat sparse matrix and dataframe
     X = concat_sparse_w_df(cumulative_skills_sparse, X_ds)
+    #X = csr_matrix(hstack([X, cum_skills_sparse2]))
 
     #Use latent variables
     latent_matrix = latent.as_matrix()
@@ -82,9 +82,12 @@ def main():
 
 
 
+
+
+
     #Grid of N for regularization for grid search of hyperparameters
-    N = 5
-    Cs = np.logspace(-1, 2, num=N)
+    N = 20
+    Cs = np.logspace(-4, 2, num=N)
     penalties = ['l1', 'l2']
 
     models = []
@@ -100,7 +103,7 @@ def main():
                                     class_weight=None, random_state=None, 
                                     solver='liblinear', max_iter=100, 
                                     multi_class='ovr', verbose=0, 
-                                    warm_start=False, n_jobs=4)
+                                    warm_start=False, n_jobs=15)
 
             lr.fit(X_train, y_train)
             print penalty
@@ -134,6 +137,35 @@ def main():
 
 
 
+    lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
+                            fit_intercept=True, intercept_scaling=1, 
+                            class_weight=None, random_state=None, 
+                            solver='liblinear', max_iter=100, 
+                            multi_class='ovr', verbose=0, 
+                            warm_start=False, n_jobs=4)
+
+    lr.fit(X_train, y_train)
+    
+    #Evaluation in train set
+    pred_proba_train = lr.predict_proba(X_train)
+    pred_proba_train_1 = [x[1] for x in pred_proba_train]
+    
+    mse_train = mean_squared_error(y_train, pred_proba_train_1)
+    rmse_train = np.sqrt(mse_train)
+    logloss_train = log_loss(y_train, pred_proba_train_1)
+    
+    #Evaluation in validation set
+    pred_proba_val = lr.predict_proba(X_val)
+    pred_proba_val_1 = [x[1] for x in pred_proba_val]
+    
+    mse_val = mean_squared_error(y_val, pred_proba_val_1)
+    rmse_val = np.sqrt(mse_val)
+    logloss_val = log_loss(y_val, pred_proba_val_1)
+    
+    rmse_train
+    rmse_val
+    logloss_train
+    logloss_val
 
 #pred_proba_test = lr.predict_proba(X_test)
 #pred_proba_test_1 = [x[1] for x in pred_proba_test]
@@ -142,14 +174,6 @@ def main():
 #rmse_test = np.sqrt(mse_test)
 #logloss_test = log_loss(y_test, pred_proba_test_1)
 
-
-
-    lr = LogisticRegressionCV(Cs = Cs, fit_intercept=True, penalty='l2', 
-        scoring='log_loss', n_jobs=6)
-
-    print time.ctime()
-    lr.fit(X_train, y_train)
-    print time.ctime()
 
 
     #Evaluation in train set
@@ -209,8 +233,3 @@ if __name__ == '__main__':
 
 
 
-    rmse_train
-    logloss_train 
-
-    rmse_test
-    logloss_test 
