@@ -1,26 +1,26 @@
 import xgboost as xgb
 import numpy as np
 
-dtrain = xgb.DMatrix( X_train, y_train)
-dval = xgb.DMatrix(X_val, y_val)
-
-dxtest = xgb.DMatrix( X_test)
-
-param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
-        'tree_method':'exact','bst:alpha':1e-2, 'bst:eta':0.1, 
-        'bst:scale_pos_weight':0.171158, 'max_depth':1, 
-        'nthread':20}
-
-evallist  = [(dval,'eval'), (dtrain,'train')]
-num_rounds = 10
-bst = xgb.train( param, dtrain, num_rounds, evallist )
-
-
-
-dtrain = xgb.DMatrix( X_train, y_train)
-dval = xgb.DMatrix(X_val, y_val)
-
-train_rmse, train_ll, val_rmse, val_ll = gridsearch_xgboost(dtrain, dval, y_train, y_val)
+#dtrain = xgb.DMatrix( X_train, y_train)
+#dval = xgb.DMatrix(X_val, y_val)
+#
+#dxtest = xgb.DMatrix( X_test)
+#
+#param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
+#        'tree_method':'exact','bst:alpha':1e-2, 'bst:eta':0.1, 
+#        'bst:scale_pos_weight':0.171158, 'max_depth':1, 
+#        'nthread':20}
+#
+#evallist  = [(dval,'eval'), (dtrain,'train')]
+#num_rounds = 10
+#bst = xgb.train( param, dtrain, num_rounds, evallist )
+#
+#
+#
+#dtrain = xgb.DMatrix( X_train, y_train)
+#dval = xgb.DMatrix(X_val, y_val)
+#
+#train_rmse, train_ll, val_rmse, val_ll = gridsearch_xgboost(dtrain, dval, y_train, y_val)
 
 
 
@@ -152,4 +152,5 @@ plt.title('Calibration plots  (reliability curve)')
 
 
 """
+
 
