@@ -1,74 +1,74 @@
 import xgboost as xgb
 import numpy as np
 
-#dtrain = xgb.DMatrix( X_train, y_train)
-#dval = xgb.DMatrix(X_val, y_val)
+dtrain = xgb.DMatrix( X_train, y_train)
+dval = xgb.DMatrix(X_val, y_val)
+
+dxtest = xgb.DMatrix( X_test)
+
+param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
+        'tree_method':'exact','bst:alpha':1e-2, 'bst:eta':0.1, 
+        'bst:scale_pos_weight':0.171158, 'max_depth':1, 
+        'nthread':20}
+
+evallist  = [(dval,'eval'), (dtrain,'train')]
+num_rounds = 10
+bst = xgb.train( param, dtrain, num_rounds, evallist )
+
+
+
+dtrain = xgb.DMatrix( X_train, y_train)
+dval = xgb.DMatrix(X_val, y_val)
+
+train_rmse, train_ll, val_rmse, val_ll = gridsearch_xgboost(dtrain, dval, y_train, y_val)
+
+
+
+
+#bst = xgb.XGBRegressor(max_depth=3, learning_rate=0.1, 
+#                n_estimators=1000, silent=False, 
+#                objective='binary:logistic', nthread=-1, 
+#                gamma=0, min_child_weight=1, max_delta_step=0, 
+#                subsample=1, colsample_bytree=1, colsample_bylevel=1, 
+#                reg_alpha=10e-2, reg_lambda=1, scale_pos_weight=1, 
+#                base_score=0.171158, seed=0, missing=None)
 #
-#dxtest = xgb.DMatrix( X_test)
-#
-#param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
-#        'tree_method':'exact','bst:alpha':1e-2, 'bst:eta':0.1, 
-#        'bst:scale_pos_weight':0.171158, 'max_depth':1, 
-#        'nthread':20}
-#
+#bst.fit(X_train, y_train, eval_metric='logloss')
+
+#param = { 'booster':'gbtree','eval_metric':'logloss', 
+#        'tree_method':'exact' }
+
+#param['eval_metric'] = ['logloss']
+#param['tree_method'] = 'exact'
+
 #evallist  = [(dval,'eval'), (dtrain,'train')]
-#num_rounds = 10
-#bst = xgb.train( param, dtrain, num_rounds, evallist )
-#
-#
-#
-#dtrain = xgb.DMatrix( X_train, y_train)
-#dval = xgb.DMatrix(X_val, y_val)
-#
-#train_rmse, train_ll, val_rmse, val_ll = gridsearch_xgboost(dtrain, dval, y_train, y_val)
-#
-#
-#
-#
-##bst = xgb.XGBRegressor(max_depth=3, learning_rate=0.1, 
-##                n_estimators=1000, silent=False, 
-##                objective='binary:logistic', nthread=-1, 
-##                gamma=0, min_child_weight=1, max_delta_step=0, 
-##                subsample=1, colsample_bytree=1, colsample_bylevel=1, 
-##                reg_alpha=10e-2, reg_lambda=1, scale_pos_weight=1, 
-##                base_score=0.171158, seed=0, missing=None)
-##
-##bst.fit(X_train, y_train, eval_metric='logloss')
-#
-##param = { 'booster':'gbtree','eval_metric':'logloss', 
-##        'tree_method':'exact' }
-#
-##param['eval_metric'] = ['logloss']
-##param['tree_method'] = 'exact'
-#
-##evallist  = [(dval,'eval'), (dtrain,'train')]
-#
-##bst = xgb.train(params=param, dtrain=dtrain, num_boost_round=100, 
-##            evals=evallis)
-#
-##bst = xgb.train( param, dtrain, num_round, evallist )
-#
-#
-#
-#
-#
-#pred_proba_train = bst.predict(X_train)
-#
-#mse_train = mean_squared_error(y_train, pred_proba_train)
-#rmse_train = np.sqrt(mse_train)
-#logloss_train = log_loss(y_train, pred_proba_train)
-#
-##Evaluation in validation set
-#pred_proba_val = bst.predict(X_val)
-#
-#mse_val = mean_squared_error(y_val, pred_proba_val)
-#rmse_val = np.sqrt(mse_val)
-#logloss_val = log_loss(y_val, pred_proba_val)
-#
-#rmse_train
-#rmse_val
-#logloss_train
-#logloss_val
+
+#bst = xgb.train(params=param, dtrain=dtrain, num_boost_round=100, 
+#            evals=evallis)
+
+#bst = xgb.train( param, dtrain, num_round, evallist )
+
+
+
+
+
+pred_proba_train = bst.predict(X_train)
+
+mse_train = mean_squared_error(y_train, pred_proba_train)
+rmse_train = np.sqrt(mse_train)
+logloss_train = log_loss(y_train, pred_proba_train)
+
+#Evaluation in validation set
+pred_proba_val = bst.predict(X_val)
+
+mse_val = mean_squared_error(y_val, pred_proba_val)
+rmse_val = np.sqrt(mse_val)
+logloss_val = log_loss(y_val, pred_proba_val)
+
+rmse_train
+rmse_val
+logloss_train
+logloss_val
 
 
 def gridsearch_xgboost(dtrain, dval, y_train, y_val):
@@ -244,7 +244,7 @@ plt.title('Calibration plots  (reliability curve)')
 #     leaves in a tree.
 #     Can be defined in place of max_depth. 
 #     Since binary trees are created, a 
-#     depth of ‘n’ would produce a maximum of 2^n leaves.
+#     depth of ‘n' would produce a maximum of 2^n leaves.
 #
 #gamma [default=0]
 #    A node is split only when the resulting split
@@ -283,10 +283,10 @@ plt.title('Calibration plots  (reliability curve)')
 #     sum(negative cases) / sum(positive cases)
 #
 #
-#tree_method, string [default=’auto’]
-#    ‘auto’: Use heuristic to choose faster one.
-#    ‘exact’: Exact greedy algorithm.
-#    ‘approx’: Approximate greedy algorithm using 
+#tree_method, string [default='auto']
+#    ‘auto': Use heuristic to choose faster one.
+#    ‘exact': Exact greedy algorithm.
+#    ‘approx': Approximate greedy algorithm using 
 #    sketching and histogram.
 #
 #sketch_eps, [default=0.03]
