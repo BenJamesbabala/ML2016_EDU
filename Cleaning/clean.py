@@ -206,10 +206,14 @@ def load_ds(path):
         u'k_traced_skills':str, u'opp_k_traced':str,
         u'kc_rules':str, u'opp_rules':str, u'unit':np.int64,
         u'section':str, u'problem_id':str,
-        u'step_id':str, u'y_one_negative_one':np.int64}
+        u'step_id':str, u'y_one_negative_one':np.int64, 
+        u'prev_cfa':np.float64, u'prev_corr':np.float64, 
+        u'prev_incorr':np.float64, u'hints_rate':np.float64,
+        u'perc_corrects':np.float64, u'unit_perf':np.float64}
 
     return pd.read_csv(path, sep='\t', index_col=0,
                         dtype=dtypes)
+
 
 
 
