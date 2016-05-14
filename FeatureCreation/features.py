@@ -277,7 +277,7 @@ def main():
     
     #skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
-    skills_mapping = 'kc_rules'
+    #skills_mapping = 'kc_rules'
     #Define window to use
     window = 10
     #Define if clustering of skills is used:
@@ -328,10 +328,12 @@ def main():
     ds['hints_rate'] = hints_rate
 
     # ds.to_csv('./Datasets/algebra_2008_2009/ds_featurized.txt', sep='\t')
+    
+    # ds = load_ds('./Datasets/algebra_2008_2009/ds_featurized.txt')
+    # latent = pd.read_csv('./Datasets/algebra_2008_2009/latent_df', index_col=0, sep='\t')
 
 
 
 if __name__ == '__main__':
     main()
-
 
