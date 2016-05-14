@@ -214,7 +214,7 @@ def main():
     ########################
     # RANDOM FOREST NORMAL TRAIN
     ########################
-    n_est = 100
+    n_est = 10
     min_samples_split = 400 #GRIDSEARHED
 
     rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
