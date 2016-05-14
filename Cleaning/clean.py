@@ -196,7 +196,7 @@ def reset_index(ds):
 
 def load_ds(path):
     dtypes = {u'row':np.int64, u'student_id':str, 
-        u'problem_name':str, u'view':np.int64, 
+        u'problem_name':str, u'view':np.float64, 
         u'step_name':str, u'step_duration':np.float64, 
         u'correct_step_duration':np.float64, 
         u'error_step_duration':np.float64,
