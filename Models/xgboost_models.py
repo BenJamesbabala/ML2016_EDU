@@ -65,7 +65,7 @@ def gridsearch_xgboost(dtrain, dval, y_train, y_val):
                     #'nthread':1}
             
             evallist  = [(dval,'eval'), (dtrain,'train')]
-            num_rounds = 500
+            num_rounds = 1000
             bst = xgb.train( param, dtrain, num_rounds, evallist )
         
             pred_proba_train = bst.predict(dtrain)
@@ -98,9 +98,9 @@ def main():
     ########################
 
     depth=5
-    min_child_weight = 10
+    min_child_weight = 7
     alphas = np.logspace(-7,1,4)
-    colsample = 0.5
+    colsample = 0.7
 
     param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
             'tree_method':'exact','lambda':alpha, 'eta':0.1, 
@@ -112,7 +112,7 @@ def main():
             #'nthread':1}
     
     evallist  = [(dval,'eval'), (dtrain,'train')]
-    num_rounds = 500
+    num_rounds = 1000
     bst = xgb.train( param, dtrain, num_rounds, evallist )
     
     pred_proba_train = bst.predict(dtrain)
