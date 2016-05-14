@@ -3,7 +3,11 @@ import numpy as np
 import graphlab as gl
 
 
-def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'correct_first_attempt', allVariables = False,user_data = None, item_data=None ,num_factors = 8 ,max_iterations =100):
+def getLatents(trainingData, user = 'student_id', 
+                item = 'step_id',targ = 'correct_first_attempt',
+                allVariables = False,user_data = None, 
+                item_data=None ,num_factors = 8, 
+                max_iterations =100):
     '''
     input: pandas dataframe, need columns names for user/item uses default student_id and step_id
         CAN provide pandas df that summarizes users and or items
@@ -29,7 +33,9 @@ def getLatents(trainingData, user = 'student_id', item = 'step_id',targ = 'corre
                                                             target = targ, num_factors =num_factors,
                                                             user_data=user_data, item_data=item_data, 
                                                             max_iterations =max_iterations,
-                                                            verbose =True, binary_target=True)
+                                                            verbose =True, binary_target=True, 
+                                                            linear_regularization=1e-7,
+                                                            regularization = 1e-6)
     
     #recomendations= model.recommend()
 
@@ -67,7 +73,7 @@ def factorsToMergeWithData(data,itemFactors, userFactors):
 def main():
     #location = '/home/michael/Desktop/machineLearningProject/27042016_train.txt' 
     #data = pd.read_csv(location,sep ='\t',nrows =10 ,skipinitialspace =False)
-    data = ds
+    
     itemDF,userDF, model = getLatents(ds.ix[train_ix], user = 'student_id', 
                                         item = 'step_id',targ = 'correct_first_attempt',
                                         allVariables = False, num_factors = 8)
@@ -76,7 +82,7 @@ def main():
     #print( itemDF.shape )
     
     latent_df = factorsToMergeWithData(ds, itemDF, userDF)
-    # latent_df.to_csv('./Datasets/algebra_2008_2009/latent_df', sep='\t')
+    # latent_df.to_csv('./Datasets/algebra_2008_2009/latent_df_gs', sep='\t')
 
 
 
@@ -95,3 +101,108 @@ if __name__ == '__main__':
 #
 #
 #y_val = ds.ix[val_ix].correct_first_attempt
+
+#EVALUATION
+
+
+def latent_x_validation(train, val):
+
+    #train_rmse, train_ll, val_rmse, val_ll = latent_x_validation(ds.ix[train_ix], 
+    #                                                             ds.ix[val_ix])
+
+    itemDF = pd.DataFrame()
+    userDF = pd.DataFrame()
+    trainingData = train[['step_id', 'student_id', 'correct_first_attempt']]
+    valData = val[['step_id', 'student_id', 'correct_first_attempt']]
+
+    sf = gl.SFrame(trainingData)
+    val_sf = gl.SFrame(valData)
+
+    y_train = trainingData.correct_first_attempt
+    y_val = valData.correct_first_attempt
+
+    user = 'student_id'
+    item = 'step_id'
+    targ = 'correct_first_attempt'
+    allVariables = False
+    user_data = None
+    item_data=None
+    max_iterations =100
+
+    num_factors = [8,50,100]
+    linear_regularization = np.logspace(-7,-1,7)
+    regularization= np.logspace(-7,-1,7)
+
+    train_rmse = []
+    train_ll = []
+    val_rmse = []
+    val_ll = []
+
+    for factor in num_factors:
+        for lin_reg in linear_regularization:
+            for reg in regularization:
+                model =gl.recommender.factorization_recommender.create( sf , user_id=user, item_id=item, 
+                                                            target = targ, num_factors=factor,
+                                                            user_data=user_data, item_data=item_data, 
+                                                            max_iterations=max_iterations,
+                                                            verbose =True, binary_target=True, 
+                                                            linear_regularization=lin_reg,
+                                                            regularization = reg)
+
+                #Evaluation in train set
+                pred_proba_train = model.predict(sf)
+                pred_proba_train = np.array(pred_proba_train)
+                
+                mse_train = mean_squared_error(y_train, pred_proba_train)
+                rmse_train = np.sqrt(mse_train)
+                logloss_train = log_loss(y_train, pred_proba_train)
+
+                train_rmse.append(rmse_train)
+                train_ll.append(logloss_train)
+                
+                #Evaluation in validation set
+                pred_proba_val = model.predict(val_sf)
+                pred_proba_val = np.array(pred_proba_val)
+                
+                mse_val = mean_squared_error(y_val, pred_proba_val)
+                rmse_val = np.sqrt(mse_val)
+                logloss_val = log_loss(y_val, pred_proba_val)
+
+                val_rmse.append(rmse_val)
+                val_ll.append(logloss_val)
+
+    return train_rmse, train_ll, val_rmse, val_ll
+
+        #tosave = np.array([ train_rmse, train_ll, val_rmse, val_ll ] )
+        # np.save('colaborative_gridsearch', tosave)
+
+
+
+    trainingData = ds.ix[train_ix][['step_id', 'student_id', 'correct_first_attempt']]
+    valData = ds.ix[val_ix][['step_id', 'student_id', 'correct_first_attempt']]
+    
+    sf = gl.SFrame(trainingData)
+    val_sf = gl.SFrame(valData)
+    
+    pred_proba_train = model.predict(sf)
+    pred_proba_train = np.array(pred_proba_train)
+    
+    mse_train = mean_squared_error(y_train, pred_proba_train)
+    rmse_train = np.sqrt(mse_train)
+    logloss_train = log_loss(y_train, pred_proba_train)
+    
+    #Evaluation in validation set
+    pred_proba_val = model.predict(val_sf)
+    pred_proba_val = np.array(pred_proba_val)
+    
+    mse_val = mean_squared_error(y_val, pred_proba_val)
+    rmse_val = np.sqrt(mse_val)
+    logloss_val = log_loss(y_val, pred_proba_val)
+    
+    rmse_train
+    rmse_val
+    logloss_train
+    logloss_val
+    
+
+
