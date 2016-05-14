@@ -214,14 +214,14 @@ def main():
     ########################
     # RANDOM FOREST NORMAL TRAIN
     ########################
-    n_est = 15
-    min_samples_split = 20
+    n_est = 100
+    min_samples_split = 400 #GRIDSEARHED
 
     rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
-                        max_depth=None, min_samples_split=50,
+                        max_depth=None, min_samples_split=min_samples_split,
                         min_samples_leaf=1, min_weight_fraction_leaf=0.0,
                         max_features='sqrt', max_leaf_nodes=None,
-                        bootstrap=True, oob_score=False, n_jobs=-1,
+                        bootstrap=True, oob_score=False, n_jobs=15,
                         random_state=None, verbose=1, warm_start=False)
 
     
@@ -229,8 +229,6 @@ def main():
     
 
     #Evaluation in TRAIN set
-    pred_proba_train = rf.predict(X_train)
-    
     pred_proba_train = rf.predict(X_train)
     
     mse_train = mean_squared_error(y_train, pred_proba_train)
