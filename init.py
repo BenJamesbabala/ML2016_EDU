@@ -1,7 +1,7 @@
 run __init__.py
 import xgboost as xgb
 
-ds = load_ds('./Datasets/algebra_2008_2009/ds_featurized.txt')
+ds = load_ds('./Datasets/algebra_2008_2009/ds_featurized_f.txt')
 train_ix, test_ix = splitter(ds)
 train_ix, val_ix = splitter(ds.ix[train_ix])
 
@@ -49,6 +49,9 @@ X = concat_sparse_w_df(cum_skills_sparse1, X_ds)
 X = csr_matrix(hstack([X, cum_skills_sparse2]))
 X = csr_matrix(hstack([X, cum_skills_sparse3]))
 
+#Concat with latent
+latent_matrix = latent.as_matrix()
+X = csr_matrix(hstack([X, latent_matrix]))
 
 
 #Split X in train and validation
@@ -63,10 +66,5 @@ X_test = X[test_ix]
 #xgboost
 dtrain = xgb.DMatrix( X_train, y_train)
 dval = xgb.DMatrix(X_val, y_val)
-depths = [3,20,50,100]
-alphas = np.logspace(-7,0,7)
-train_rmse = {}
-train_ll = {}
-val_rmse = {}
-val_ll = {}
+
 
