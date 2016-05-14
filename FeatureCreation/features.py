@@ -105,6 +105,66 @@ def cumsum_window(obs, N=5):
     
     return diff
 
+
+def unit_performance(ds, train_ix):
+    ''' Receives the dataset and creates a cumulative windowed sum
+    for the columns corrects and incorrects '''
+
+    #If window not specified not use window
+
+    student_cfa = ds[['student_id', 'unit', 
+                        'correct_first_attempt']].ix[train_ix]
+
+    grouped = student_cfa.groupby(['student_id', 'unit'])
+
+    new_df = pd.DataFrame(np.zeros((ds.shape[0], 1)), 
+                            columns=['unit_performance'], 
+                            index=ds.index)
+
+        
+    cum = grouped.sum()
+    tries = grouped.count()
+
+    percent = cum/tries
+    percent1 = percent.reset_index()
+    percent1.columns = np.array(['student_id' ,'unit','unit_performance'])
+
+    merged = ds.merge(percent1, how='left', left_on=['student_id','unit'],
+                        right_on=['student_id','unit'] )
+
+
+    return merged.unit_performance
+
+def problem_performance(ds, train_ix):
+    ''' Receives the dataset and creates a cumulative windowed sum
+    for the columns corrects and incorrects '''
+
+    #If window not specified not use window
+
+    student_cfa = ds[['student_id', 'problem_id', 
+                        'correct_first_attempt']].ix[train_ix]
+
+    grouped = student_cfa.groupby(['student_id', 'problem_id'])
+
+        
+    cum = grouped.sum()
+    tries = grouped.count()
+
+    percent = cum/tries
+    percent1 = percent.reset_index()
+    percent1.columns = np.array(['student_id' ,'problem_id',
+                                'problem_performance'])
+
+    merged = ds.merge(percent1, how='left', left_on=['student_id','problem_id'],
+                        right_on=['student_id','problem_id'] )
+
+    merged['missing_problem_performance'] = merged.problem_performance.isnull()*1
+    merged['problem_performance'] = merged.problem_performance.fillna(0)
+
+    return merged[['problem_performance', 'missing_problem_performance']]
+    
+
+
 def corrects_incorrects_counter_win(ds,  window=None):
     ''' Receives the dataset and creates a cumulative windowed sum
     for the columns corrects and incorrects '''
@@ -275,7 +335,7 @@ def main():
     #1st define which skills column to be used. 
     #Uncomment the one to be used
     
-    #skills_mapping = 'kc_subskills'
+    skills_mapping = 'kc_subskills'
     #skills_mapping = 'k_traced_skills'
     #skills_mapping = 'kc_rules'
     #Define window to use
@@ -326,6 +386,19 @@ def main():
     #Create hints column
     hints_rate = hints_column(ds, train_ix)
     ds['hints_rate'] = hints_rate
+
+
+    ds['perc_corrects'] = ds.prev_corr/(ds.prev_corr+ds.prev_incorr)
+    ds['perc_corrects'] = ds.perc_corrects.fillna(0)
+
+    
+    ds['unit_perf'] = unit_performance(ds, train_ix)
+
+    #p_perf = problem_performance(ds, train_ix)
+    #ds['p_perf'] = p_perf.problem_performance
+    #ds['missing_p_perf'] = p_perf.missing_problem_performance
+
+    ds.view = ds.view/(1+ds.view)
 
     # ds.to_csv('./Datasets/algebra_2008_2009/ds_featurized.txt', sep='\t')
     
