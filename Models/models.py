@@ -45,6 +45,9 @@ def concat_sparse_w_df(sparse, ds):
 
 def main():
 
+    ########################
+    # PREPARE DATASETS
+    ########################
 
     #Remove non-numeric features
     non_num_features = get_non_numeric_features(ds)
@@ -82,7 +85,9 @@ def main():
 
 
 
-
+    ########################
+    # LOGISTIC GRIDSEARCH
+    ########################
 
 
     #Grid of N for regularization for grid search of hyperparameters
@@ -135,8 +140,11 @@ def main():
             val_ll.append(logloss_val)
 
 
-
-
+    ########################
+    # LOGISTIC NORMAL TRAIN
+    ########################
+    penalty='l2'
+    C = 0.06
     lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
                             fit_intercept=True, intercept_scaling=1, 
                             class_weight=None, random_state=None, 
@@ -176,6 +184,9 @@ def main():
 
 
 
+    ########################
+    # LOGISTIC EVALUATION
+    ########################
     #Evaluation in train set
     pred_proba_train = lr.predict_proba(X_train)
     pred_proba_train_1 = [x[1] for x in pred_proba_train]
@@ -200,32 +211,85 @@ def main():
 
 
 
+    ########################
+    # RANDOM FOREST NORMAL TRAIN
+    ########################
+    n_est = 15
+    min_samples_split = 20
 
-    rf = RandomForestRegressor(n_estimators=10, criterion='mse', 
-                                max_depth=None, min_samples_split=2,
-                                min_samples_leaf=1, min_weight_fraction_leaf=0.0,
-                                max_features='auto', max_leaf_nodes=None,
-                                bootstrap=True, oob_score=False, n_jobs=20,
-                                random_state=None, verbose=0, warm_start=False)
+    rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
+                        max_depth=None, min_samples_split=50,
+                        min_samples_leaf=1, min_weight_fraction_leaf=0.0,
+                        max_features='sqrt', max_leaf_nodes=None,
+                        bootstrap=True, oob_score=False, n_jobs=-1,
+                        random_state=None, verbose=1, warm_start=False)
 
-    print time.ctime()
+    
     rf.fit(X_train, y_train)
-    print time.ctime()
+    
 
-    #Evaluation in train set
+    #Evaluation in TRAIN set
+    pred_proba_train = rf.predict(X_train)
+    
     pred_proba_train = rf.predict(X_train)
     
     mse_train = mean_squared_error(y_train, pred_proba_train)
     rmse_train = np.sqrt(mse_train)
     logloss_train = log_loss(y_train, pred_proba_train)
     
-    #Evaluation in test set
-    pred_proba_test = rf.predict(X_test)
     
-    mse_test = mean_squared_error(y_test, pred_proba_test)
-    rmse_test = np.sqrt(mse_test)
-    logloss_test = log_loss(y_test, pred_proba_test)
+    #Evaluation in VALIDATION set
+    pred_proba_val = rf.predict(X_val)
     
+    mse_val = mean_squared_error(y_val, pred_proba_val)
+    rmse_val = np.sqrt(mse_val)
+    logloss_val = log_loss(y_val, pred_proba_val)
+    # Print
+    rmse_train
+    rmse_val
+    logloss_train
+    logloss_val
+
+    ########################
+    # RANDOM FOREST GRIDSEARCH
+    ########################
+
+    n_estimators = [10,30,100]
+
+    train_ll = []
+    val_ll = []
+    train_rmse = []
+    val_rmse = []
+
+    for n_est in n_estimators:
+        rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
+                            max_depth=None, min_samples_split=50,
+                            min_samples_leaf=1, min_weight_fraction_leaf=0.0,
+                            max_features='sqrt', max_leaf_nodes=None,
+                            bootstrap=True, oob_score=False, n_jobs=-1,
+                            random_state=None, verbose=1, warm_start=False)
+
+        rf.fit(X_train, y_train)
+
+        pred_proba_train = rf.predict(X_train)
+    
+        mse_train = mean_squared_error(y_train, pred_proba_train)
+        rmse_train = np.sqrt(mse_train)
+        logloss_train = log_loss(y_train, pred_proba_train)
+        
+        train_rmse.append(rmse_train)
+        train_ll.append(logloss_train)
+
+        #Evaluation in test set
+        pred_proba_val = rf.predict(X_val)
+        
+        mse_val = mean_squared_error(y_val, pred_proba_val)
+        rmse_val = np.sqrt(mse_val)
+        logloss_val = log_loss(y_val, pred_proba_val)
+
+        val_rmse.append(rmse_train)
+        val_ll.append(logloss_train)
+
 
 
 if __name__ == '__main__':
