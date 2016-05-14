@@ -144,7 +144,7 @@ def main():
     # LOGISTIC NORMAL TRAIN
     ########################
     penalty='l2'
-    C = 0.06
+    C = 0.6
     lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
                             fit_intercept=True, intercept_scaling=1, 
                             class_weight=None, random_state=None, 
