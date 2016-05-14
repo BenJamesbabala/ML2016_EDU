@@ -43,7 +43,7 @@ def gridsearch_xgboost(dtrain, dval, y_train, y_val):
     depths = [3,10,50]
     
     depth=2
-    min_child_weight = 10
+    min_child_weight = 5
     alphas = np.logspace(-7,1,4)
     colsample = 0.5
 
@@ -97,22 +97,23 @@ def main():
     # XGBOOST NORMAL FIT
     ########################
 
-    depth=5
-    min_child_weight = 7
-    alphas = np.logspace(-7,1,4)
+    depth=20
+    min_child_weight = 10
+    
     colsample = 0.7
+    alpha = 10e-8
 
     param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
             'tree_method':'exact','lambda':alpha, 'eta':0.1, 
             'max_depth':depth, 'objective':'binary:logistic', 
             'min_child_weight':min_child_weight, 
-            'colsample_bytree':colsample }
+            'colsample_bytree':colsample}
             #'n_estimators':10000}
             #
             #'nthread':1}
     
     evallist  = [(dval,'eval'), (dtrain,'train')]
-    num_rounds = 1000
+    num_rounds = 500
     bst = xgb.train( param, dtrain, num_rounds, evallist )
     
     pred_proba_train = bst.predict(dtrain)
