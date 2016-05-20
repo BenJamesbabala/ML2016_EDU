@@ -144,7 +144,7 @@ def main():
     # LOGISTIC NORMAL TRAIN
     ########################
     penalty='l2'
-    C = 0.6
+    C = 0.06
     lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
                             fit_intercept=True, intercept_scaling=1, 
                             class_weight=None, random_state=None, 
@@ -214,11 +214,11 @@ def main():
     ########################
     # RANDOM FOREST NORMAL TRAIN
     ########################
-    n_est = 10
+    n_est = 150
     min_samples_split = 400 #GRIDSEARHED
 
     rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
-                        max_depth=None, min_samples_split=min_samples_split,
+                        max_depth=100, min_samples_split=min_samples_split,
                         min_samples_leaf=1, min_weight_fraction_leaf=0.0,
                         max_features='sqrt', max_leaf_nodes=None,
                         bootstrap=True, oob_score=False, n_jobs=15,
@@ -295,3 +295,111 @@ if __name__ == '__main__':
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    penalty='l2'
+    C = 0.06
+    lr = LogisticRegression(penalty=penalty, dual=False, tol=0.0001, C=C,
+                            fit_intercept=True, intercept_scaling=1, 
+                            class_weight=None, random_state=None, 
+                            solver='liblinear', max_iter=100, 
+                            multi_class='ovr', verbose=0, 
+                            warm_start=False, n_jobs=4)
+
+    lr.fit(X_train, y_train)
+    
+    #Evaluation in train set
+    pred_proba_train = clf.predict_proba(X_train)
+    pred_proba_train_1 = [x[1] for x in pred_proba_train]
+    
+    mse_train = mean_squared_error(y_train, pred_proba_train_1)
+    rmse_train = np.sqrt(mse_train)
+    logloss_train = log_loss(y_train, pred_proba_train_1)
+    
+    #Evaluation in validation set
+    pred_proba_test = clf.predict_proba(X_test)
+    pred_proba_test_1 = [x[1] for x in pred_proba_test]
+    
+    mse_test = mean_squared_error(y_test, pred_proba_test_1)
+    rmse_test = np.sqrt(mse_test)
+    logloss_test = log_loss(y_test, pred_proba_test_1)
+    
+    rmse_train
+    rmse_test
+    logloss_train
+    logloss_test
+
+
+
+
+
+
+
+
+
+
+
+
+    ########################
+    # RANDOM FOREST NORMAL TRAIN
+    ########################
+    n_est = 100
+    min_samples_split = 400 #GRIDSEARHED
+
+    rf = RandomForestRegressor(n_estimators=n_est, criterion='mse', 
+                        max_depth=None, min_samples_split=min_samples_split,
+                        min_samples_leaf=1, min_weight_fraction_leaf=0.0,
+                        max_features='sqrt', max_leaf_nodes=None,
+                        bootstrap=True, oob_score=False, n_jobs=15,
+                        random_state=None, verbose=1, warm_start=False)
+
+    
+    rf.fit(X_train, y_train)
+    
+
+    #Evaluation in TRAIN set
+    pred_proba_train = rf.predict(X_train)
+    pred_proba_test = rf.predict(X_test)
+    np.save('./predictions/final_pred_1', pred_proba_test)
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+    print 'EAAAAA WACHO'
+
+    
+    mse_train = mean_squared_error(y_train, pred_proba_train)
+    rmse_train = np.sqrt(mse_train)
+    logloss_train = log_loss(y_train, pred_proba_train)
+    
+    
+    #Evaluation in VALIDATION set
+    pred_proba_test = rf.predict(X_test)
+    
+    mse_test = mean_squared_error(y_test, pred_proba_test)
+    rmse_test = np.sqrt(mse_test)
+    logloss_test = log_loss(y_test, pred_proba_test)
+    # Print
+    rmse_train
+    rmse_test
+    logloss_train
+    logloss_test
