@@ -31,6 +31,8 @@ import numpy as np
 #evallist  = [(dval,'eval'), (dtrain,'train')]
 #
 #num_round = 200
+
+
 #bst = xgb.train( param, dtrain, num_round, evallist )
 
 
@@ -98,22 +100,19 @@ def main():
     ########################
 
     depth=20
-    min_child_weight = 10
-    
-    colsample = 0.7
-    alpha = 10e-8
+    min_child_weight = 1
+    colsample = 1
+    alpha = 9.9999999999999995e-08
 
     param = { 'booster':'gbtree','eval_metric':'logloss', 'silent':0, 
             'tree_method':'exact','lambda':alpha, 'eta':0.1, 
-            'max_depth':depth, 'objective':'binary:logistic', 
-            'min_child_weight':min_child_weight, 
-            'colsample_bytree':colsample}
+            'max_depth':depth, 'objective':'binary:logistic'}
             #'n_estimators':10000}
             #
             #'nthread':1}
     
     evallist  = [(dval,'eval'), (dtrain,'train')]
-    num_rounds = 500
+    num_rounds = 750
     bst = xgb.train( param, dtrain, num_rounds, evallist )
     
     pred_proba_train = bst.predict(dtrain)
@@ -133,3 +132,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

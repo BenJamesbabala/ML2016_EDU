@@ -89,6 +89,25 @@ def skills_corr_counter_win(ds, sparse_matrix_input, window=None):
 
     return sparse_matrix
 
+def skills_corr_counter_win_test(skills_sparse_test, 
+                                        skills_sparse_train):
+    
+    sparse_matrix = csr_matrix(skills_sparse_test.shape)
+    for col in xrange(skills_sparse_test.shape[1]):
+
+        skill_indices = np.array(skills_sparse_test[:,col].nonzero()[0])
+
+        fill_ix = skills_sparse_train[:,col].nonzero()[0]
+        if len(fill_ix)==0:
+            fill_val = 0
+        else:
+            fill_ix = fill_ix[-1]
+            fill_val = skills_sparse_train[fill_ix,col]
+
+        sparse_matrix[skill_indices, col] = fill_val
+
+    return sparse_matrix
+
 
 def cumsum_window(obs, N=5):
     ''' Receives a DF with observations and returns a DF
@@ -121,7 +140,6 @@ def unit_performance(ds, train_ix):
                             columns=['unit_performance'], 
                             index=ds.index)
 
-        
     cum = grouped.sum()
     tries = grouped.count()
 
@@ -335,44 +353,62 @@ def main():
     #1st define which skills column to be used. 
     #Uncomment the one to be used
     
-    skills_mapping = 'kc_subskills'
-    #skills_mapping = 'k_traced_skills'
-    #skills_mapping = 'kc_rules'
+    skills_mapping1 = 'kc_subskills'
+    skills_mapping2 = 'k_traced_skills'
+    skills_mapping3 = 'kc_rules'
     #Define window to use
-    window = 10
+    window = 100
     #Define if clustering of skills is used:
     clustering = True
-    n_clusters = 75
+    n_clusters = 100
 
 
     #Creation of the sparse subskills matrix
     if skills_mapping == 'kc_subskills':
-        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+        skills_sparse1, skills_vectorizer1 = sparse_kc_skills(ds,
                                                             'kc_subskills',
                                                             'opp_subskills')
     elif skills_mapping == 'k_traced_skills':
-        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+        skills_sparse2, skills_vectorizer2 = sparse_kc_skills(ds,
                                                             'k_traced_skills',
                                                             'opp_k_traced')
     else:
-        skills_sparse, skills_vectorizer = sparse_kc_skills(ds,
+        skills_sparse3, skills_vectorizer3 = sparse_kc_skills(ds,
                                                             'kc_rules',
                                                             'opp_rules')
 
     #Clustering of skills
     if clustering:
         #
-        clusters_dict = clusterDictionary(ds, skills_mapping, 
+        clusters_dict1 = clusterDictionary(ds, skills_mapping1, 
                                     number_clusters=n_clusters)
 
         #Shrink the sparse matrix using the cluster of skills
-        skills_sparse_cl = sparse_matrix_clusterer(skills_sparse,
-                                                    skills_vectorizer, clusters_dict)      
+        skills_sparse_cl1 = sparse_matrix_clusterer(skills_sparse1,
+                                                    skills_vectorizer1, clusters_dict1) 
+
+        clusters_dict2 = clusterDictionary(ds, skills_mapping2, 
+                                    number_clusters=n_clusters)
+
+        #Shrink the sparse matrix using the cluster of skills
+        skills_sparse_cl2 = sparse_matrix_clusterer(skills_sparse2,
+                                                    skills_vectorizer2, clusters_dict2)
+
+        clusters_dict3 = clusterDictionary(ds, skills_mapping3, 
+                                    number_clusters=n_clusters)
+
+        #Shrink the sparse matrix using the cluster of skills
+        skills_sparse_cl3 = sparse_matrix_clusterer(skills_sparse3,
+                                                    skills_vectorizer3, clusters_dict3)
+
+
+
     else:
-        skills_sparse_cl = skills_sparse    
+        skills_sparse_cl = skills_sparse
     
     #Apply a cumulative window to the skills sparse matrix        
-    cumulative_skills_sparse = skills_corr_counter_win(ds, skills_sparse_cl, window=window)
+    cumulative_skills_sparse3 = skills_corr_counter_win(ds, skills_sparse_cl3, window=window)
+    # cum_skills_sparse_test = skills_corr_counter_win_test(skills_sparse_cl, cum_skills_sparse1)
 
     #Create previous CFA column
     prev_cfa = previous_correct_first_attempt_column(ds)   

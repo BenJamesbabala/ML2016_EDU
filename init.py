@@ -1,7 +1,7 @@
 run __init__.py
 import xgboost as xgb
 
-ds = load_ds('./Datasets/algebra_2008_2009/ds_featurized_f.txt')
+ds = load_ds('./Datasets/algebra_2008_2009/ds_featurized_TT.txt')
 train_ix, test_ix = splitter(ds)
 train_ix, val_ix = splitter(ds.ix[train_ix])
 
@@ -10,13 +10,15 @@ latent = pd.read_csv('./Datasets/algebra_2008_2009/latent_df_gs',
 
 
 
-saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_1.npy')
+saved = np.load('./sparse_matrices/cluster_100_window_100/cum_skills_sparse_1.npy')
 cum_skills_sparse1 = saved.item()
-saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_2.npy')
+saved = np.load('./sparse_matrices/cluster_100_window_100/cum_skills_sparse_2.npy')
 cum_skills_sparse2 = saved.item()
-saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_3.npy')
+saved = np.load('./sparse_matrices/cluster_100_window_100/cum_skills_sparse_3.npy')
 cum_skills_sparse3 = saved.item()
 del saved
+
+
 
 # RECOVER BETA AND THETA PARAMETERS
 saved = np.load('./Models/baseline_beta_prob.npy')
@@ -55,16 +57,30 @@ X = csr_matrix(hstack([X, latent_matrix]))
 
 
 #Split X in train and validation
-X_train = X[train_ix]
-X_val = X[val_ix]
 y = ds_num.correct_first_attempt
+
+X_train = X[train_ix]
 y_train = y.loc[train_ix]
+
+X_val = X[val_ix]
 y_val = y.loc[val_ix]
+
 y_test = y.loc[test_ix]
 X_test = X[test_ix]
 
 #xgboost
 dtrain = xgb.DMatrix( X_train, y_train)
+dtest= xgb.DMatrix( X_test, y_test)
+
 dval = xgb.DMatrix(X_val, y_val)
 
 
+
+
+saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_1_test.npy')
+cum_skills_sparse1t = saved.item()
+saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_2_test.npy')
+cum_skills_sparse2t = saved.item()
+saved = np.load('./sparse_matrices/cluster_75_window_10/cum_skills_sparse_3_test.npy')
+cum_skills_sparse3t = saved.item()
+del saved

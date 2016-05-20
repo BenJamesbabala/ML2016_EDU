@@ -179,10 +179,10 @@ def latent_x_validation(train, val):
 
 
     trainingData = ds.ix[train_ix][['step_id', 'student_id', 'correct_first_attempt']]
-    valData = ds.ix[val_ix][['step_id', 'student_id', 'correct_first_attempt']]
+    testData = ds.ix[test_ix][['step_id', 'student_id', 'correct_first_attempt']]
     
     sf = gl.SFrame(trainingData)
-    val_sf = gl.SFrame(valData)
+    test_sf = gl.SFrame(testData)
     
     pred_proba_train = model.predict(sf)
     pred_proba_train = np.array(pred_proba_train)
@@ -192,17 +192,17 @@ def latent_x_validation(train, val):
     logloss_train = log_loss(y_train, pred_proba_train)
     
     #Evaluation in validation set
-    pred_proba_val = model.predict(val_sf)
-    pred_proba_val = np.array(pred_proba_val)
+    pred_proba_test = model.predict(test_sf)
+    pred_proba_test = np.array(pred_proba_test)
     
-    mse_val = mean_squared_error(y_val, pred_proba_val)
-    rmse_val = np.sqrt(mse_val)
-    logloss_val = log_loss(y_val, pred_proba_val)
+    mse_test = mean_squared_error(y_test, pred_proba_test)
+    rmse_test = np.sqrt(mse_test)
+    logloss_test = log_loss(y_test, pred_proba_test)
     
     rmse_train
-    rmse_val
+    rmse_test
     logloss_train
-    logloss_val
+    logloss_test
     
 
 
