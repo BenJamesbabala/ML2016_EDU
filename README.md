@@ -28,4 +28,4 @@ task and proposing a personalization system based on these probabilities. The go
 a strong probabilistic model using novel feature creation and leverage this model to create an
 effective recommendation system.
 
-Results and description are in the file DS-GA-1003_Final_Project.pdf
+Results and technical description [here](/DS-GA-1003_Final_Project.pdf)
